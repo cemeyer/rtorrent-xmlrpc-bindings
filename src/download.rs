@@ -1,5 +1,5 @@
 use crate::macros::*;
-use crate::{value_conversion, DownloadTracker, Result, Server};
+use crate::{value_conversion, Error, DownloadTracker, Peer, Result, Server};
 use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
@@ -76,6 +76,27 @@ impl Download {
     d_bool_getter!(is_closed);
 
     d_int_getter!(tracker_size);
+
+    pub fn peers(&self) -> Result<Vec<Peer>> {
+        let raw_list = Request::new("p.multicall")
+            .arg(self.sha1_hex())
+            .arg("")
+            .arg(Value::Array(vec!["p.id=".into()]))
+            .call_url(self.endpoint())?;
+        let list = value_conversion::list(&raw_list)?
+            .iter()
+            .map(|ll| {
+                let peerhash = value_conversion::list(ll)?
+                    .get(0)
+                    .ok_or(Error::UnexpectedStructure(
+                            format!("expected non-empty inner list, got {:?}", ll)
+                        ))?;
+                let peerhash = value_conversion::string(peerhash)?;
+                Ok(Peer::new(self.clone(), peerhash))
+            })
+            .collect();
+        list
+    }
 
     pub fn trackers(&self) -> Result<Vec<DownloadTracker>> {
         let num = self.tracker_size()?;

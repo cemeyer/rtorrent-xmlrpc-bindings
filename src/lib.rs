@@ -3,9 +3,11 @@ use xmlrpc::{Request, Value};
 
 pub(crate) mod value_conversion;
 mod download;
+mod peer;
 mod tracker;
 
 pub use download::Download;
+pub use peer::Peer;
 pub use tracker::DownloadTracker;
 
 pub type Result<T> = std::result::Result<T, Error>;
