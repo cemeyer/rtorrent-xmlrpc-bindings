@@ -1,5 +1,10 @@
 [package]
 name = "rtorrent-xmlrpc-bindings"
+description = "XMLRPC API bindings for rtorrent"
+repository = "https://github.com/cemeyer/rtorrent-xmlrpc-bindings"
+categories = ["api-bindings"]
+keywords = ["rtorrent", "xmlrpc", "rpc", "remote", "control"]
+license = "MIT"
 version = "0.1.0"
 edition = "2018"
 
