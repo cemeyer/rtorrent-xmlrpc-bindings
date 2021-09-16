@@ -4,23 +4,24 @@ use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
 macro_rules! p_getter {
-    ($method: ident, $result: ty, $conv: ident) => {
-        prim_getter!("p.", $method, $result, $conv);
+    ($(#[$meta:meta])* $method: ident, $result: ty, $conv: ident) => {
+        prim_getter!($(#[$meta])* "p.", $method, $result, $conv);
     }
 }
 
 macro_rules! p_str_getter {
-    ($method: ident) => {
-        p_getter!($method, String, string_owned);
+    ($(#[$meta:meta])* $method: ident) => {
+        p_getter!($(#[$meta])* $method, String, string_owned);
     }
 }
 
 #[derive(Debug)]
-pub struct PeerInner {
+pub(crate) struct PeerInner {
     peer_sha1_hex: String,
     download: Download,
 }
 
+/// Represents a logical peer associated with a download.
 #[derive(Clone, Debug)]
 pub struct Peer {
     inner: Arc<PeerInner>,
@@ -36,11 +37,9 @@ impl Peer {
         self.inner.download.endpoint()
     }
 
-    pub fn peer_sha1_hex(&self) -> &str {
-        &self.inner.peer_sha1_hex
-    }
-
-    p_str_getter!(address);
+    p_str_getter!(
+        /// Get the IP address of the peer.
+        address);
 }
 
 unsafe impl Send for Peer {}
