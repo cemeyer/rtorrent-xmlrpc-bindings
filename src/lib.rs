@@ -3,10 +3,12 @@ use xmlrpc::{Request, Value};
 
 pub(crate) mod value_conversion;
 mod download;
+mod file;
 mod peer;
 mod tracker;
 
 pub use download::Download;
+pub use file::File;
 pub use peer::Peer;
 pub use tracker::Tracker;
 

@@ -1,5 +1,5 @@
 use crate::macros::*;
-use crate::{value_conversion, Error, Tracker, Peer, Result, Server};
+use crate::{value_conversion, Error, File, Peer, Result, Server, Tracker};
 use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
@@ -83,6 +83,12 @@ impl Download {
         list
     }
 
+    /// Get a list of files associated with this download.
+    pub fn files(&self) -> Result<Vec<File>> {
+        let num = self.size_files()?;
+        Ok((0..num).map(|i| File::new(self.clone(), i)).collect())
+    }
+
     /// Get a list of trackers associated with this download.
     pub fn trackers(&self) -> Result<Vec<Tracker>> {
         let num = self.tracker_size()?;
@@ -138,6 +144,9 @@ impl Download {
     d_int_getter!(
         /// Get the number of trackers associated with this download.
         tracker_size);
+    d_int_getter!(
+        /// Get the number of files associated with this download.
+        size_files);
 }
 
 unsafe impl Send for Download {}
