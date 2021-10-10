@@ -21,9 +21,21 @@ macro_rules! d_bool_getter {
     }
 }
 
+macro_rules! d_f1000_getter {
+    ($(#[$meta:meta])* $method: ident) => {
+        d_getter!($(#[$meta])* $method, f64, fraction1000);
+    }
+}
+
 macro_rules! d_int_getter {
     ($(#[$meta:meta])* $method: ident) => {
         d_getter!($(#[$meta])* $method, i64, int);
+    }
+}
+
+macro_rules! d_int_getter_named {
+    ($(#[$meta:meta])* $method: ident, $apimethod: literal) => {
+        prim_getter_named!($(#[$meta])* "d.", $method, i64, int, $apimethod);
     }
 }
 
@@ -127,6 +139,9 @@ impl Download {
     d_str_getter!(
         /// Get the name of the torrent.
         name);
+    d_int_getter!(
+        /// Get the size, in bytes, of the torrent contents.
+        size_bytes);
     d_str_getter!(
         /// The metafile from which this download was created.
         loaded_file);
@@ -147,6 +162,23 @@ impl Download {
     d_int_getter!(
         /// Get the number of files associated with this download.
         size_files);
+
+    d_int_getter_named!(
+        /// Get the download rate.
+        down_rate, "down.rate");
+    d_int_getter_named!(
+        /// Get the download total (bytes).
+        down_total, "down.total");
+    d_int_getter_named!(
+        /// Get the upload rate.
+        up_rate, "up.rate");
+    d_int_getter_named!(
+        /// Get the upload total (bytes).
+        up_total, "up.total");
+
+    d_f1000_getter!(
+        /// Get the upload/download ratio for this download.
+        ratio);
 }
 
 unsafe impl Send for Download {}

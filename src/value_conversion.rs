@@ -11,6 +11,10 @@ pub(crate) fn int(val: &Value) -> Result<i64> {
     }
 }
 
+pub(crate) fn fraction1000(val: &Value) -> Result<f64> {
+    Ok((int(val)? as f64) / 1000.)
+}
+
 // "Bools" are expressed as integer Values, but we'll accept an actual bool in case they choose
 // to use that eventually.
 pub(crate) fn bool(val: &Value) -> Result<bool> {

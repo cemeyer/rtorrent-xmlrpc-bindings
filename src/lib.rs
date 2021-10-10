@@ -86,6 +86,21 @@ pub(crate) mod macros {
         }
     }
     pub(crate) use prim_getter;
+    macro_rules! prim_getter_named {
+        (
+            $(#[$meta:meta])*
+            $ns: literal, $method: ident, $result: ty, $conv: ident, $apimethod: literal
+        ) => {
+            $(#[$meta])*
+            pub fn $method(&self) -> Result<$result> {
+                let val = Request::new(concat!($ns, $apimethod))
+                    .arg(self)
+                    .call_url(self.endpoint())?;
+                value_conversion::$conv(&val)
+            }
+        }
+    }
+    pub(crate) use prim_getter_named;
 
     macro_rules! prim_setter {
         (
