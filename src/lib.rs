@@ -28,6 +28,28 @@ impl From<xmlrpc::Error> for Error {
     }
 }
 
+macro_rules! server_str_getter {
+    ($(#[$meta:meta])* $method: ident, $api: literal) => {
+        $(#[$meta])*
+        pub fn $method(&self) -> Result<String> {
+            let val = Request::new($api)
+                .call_url(self.endpoint())?;
+            value_conversion::string_owned(&val)
+        }
+    }
+}
+
+macro_rules! server_int_getter {
+    ($(#[$meta:meta])* $method: ident, $api: literal) => {
+        $(#[$meta])*
+        pub fn $method(&self) -> Result<i64> {
+            let val = Request::new($api)
+                .call_url(self.endpoint())?;
+            value_conversion::int(&val)
+        }
+    }
+}
+
 #[derive(Debug)]
 struct ServerInner {
     endpoint: String,
@@ -65,6 +87,26 @@ impl Server {
             .map(|v| Download::from_value(self.clone(), v))
             .collect()
     }
+
+    server_str_getter!(
+        /// Get the IP address associated with this rtorrent instance.
+        ip, "network.bind_address");
+    server_str_getter!(
+        /// Get the hostname associated with this rtorrent instance.
+        hostname, "system.hostname");
+
+    server_int_getter!(
+        /// Get the total downloaded metric for this instance (bytes).
+        down_total, "throttle.global_down.total");
+    server_int_getter!(
+        /// Get the current download rate for this instance (bytes/s).
+        down_rate, "throttle.global_down.rate");
+    server_int_getter!(
+        /// Get the total uploaded metric for this instance (bytes).
+        up_total, "throttle.global_up.total");
+    server_int_getter!(
+        /// Get the current upload rate for this instance (bytes/s).
+        up_rate, "throttle.global_up.rate");
 }
 
 unsafe impl Send for Server {}
