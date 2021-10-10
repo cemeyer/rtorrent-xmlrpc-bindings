@@ -27,6 +27,11 @@ swarm for that particular torrent.  (Accessors on `Peer` correspond to
 the `p.*` methods in the rtorrent API.)  One example is
 `Peer::address()`.
 
+`File` objects represent an individual file associated with a download.
+Downloads may have one or more `Download::files()`.  Accessors on `File`
+correspond to the `f.*` methods in the rtorrent API.  An example is
+`File::path()`.
+
 ## Example
 
 ```rust
