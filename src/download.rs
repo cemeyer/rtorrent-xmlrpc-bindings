@@ -1,3 +1,10 @@
+/*! Torrent downloads
+
+This module defines the [`Download`] type and support code.
+
+[`Download`]: crate::Download
+!*/
+
 use crate::macros::*;
 use crate::{value_conversion, Error, File, Peer, Result, Server, Tracker};
 use std::sync::Arc;
@@ -51,7 +58,65 @@ pub(crate) struct DownloadInner {
     server: Server,
 }
 
-/// Download represents a loaded torrent.
+/// `Download` represents a loaded torrent
+///
+/// Accessors on `Download` correspond to the `d.*` rtorrent APIs.
+///
+/// # Examples
+///
+/// Enumerating downloads on an rtorrent instance:
+///
+/// ```rust
+/// use rtorrent_xmlrpc_bindings as rtorrent;
+///
+/// let my_handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
+/// for download in my_handle.download_list()? {
+///     println!("Download: {}", download.name()?);
+/// }
+/// ```
+///
+/// Introspecting downloads:
+///
+/// ```rust
+/// fn print_download_info(dl: Download) -> Result<(), rtorrent::Error> {
+///     println!("{}: {} MB. Ratio: {}",
+///         dl.name()?,
+///         dl.size_bytes()? / 1000_000,
+///         dl.ratio()?);
+///     Ok(())
+/// }
+/// ```
+///
+/// Enumerating [`File`](s) associated with a torrent (torrents contain one or more individual files):
+///
+/// ```rust
+/// let dl: Download = ...;
+/// for file in dl.files()? {
+///     print_file_info(file)?;
+/// }
+///
+/// Enumerating [`Tracker`](s) associated with a torrent (torrents use one or more tracker(s) to
+/// locate peers in the swarm):
+///
+/// ```rust
+/// let dl: Download = ...;
+/// for tracker in dl.trackers()? {
+///     print_tracker_info(tracker)?;
+/// }
+/// ```
+///
+/// Enumerating [`Peer`]s in the swarm associated with a torrent:
+///
+/// ```rust
+/// let dl: Download = ...;
+/// for peer in dl.peers()? {
+///     print_peer_info(peer)?;
+/// }
+/// ```
+///
+/// [`File`]: crate::File
+/// [`Peer`]: crate::Peer
+/// [`Tracker`]: crate::Tracker
 #[derive(Clone, Debug)]
 pub struct Download {
     inner: Arc<DownloadInner>,

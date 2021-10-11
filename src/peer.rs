@@ -1,3 +1,10 @@
+/*! Torrent peers
+
+This module defines the [`Peer`] type and support code.
+
+[`Peer`]: crate::Peer
+!*/
+
 use crate::macros::*;
 use crate::{value_conversion, Download, Result};
 use std::sync::Arc;
@@ -21,7 +28,38 @@ pub(crate) struct PeerInner {
     download: Download,
 }
 
-/// Represents a logical peer associated with a download.
+/// A peer associated with a [`Download`]
+///
+/// Accessors on `Peer` correspond to the `p.*` rtorrent APIs.
+///
+/// # Examples
+///
+/// Enumerating peers associated with a download:
+///
+/// ```rust
+/// let dl: Download = ...;
+/// for peer in dl.peers()? {
+///     print_peer_info(peer)?;
+/// }
+/// ```
+///
+/// Introspecting a peer:
+///
+/// ```rust
+/// fn print_peer_info(peer: Peer) {
+///     if let Ok(address) = peer.address() {
+///         println!("Peer IP: {}", address);
+///     }
+/// }
+/// ```
+///
+/// ## Caveats
+///
+/// Peers may disappear at any time, and RPC calls requesting peer information may spontaneously
+/// fail after they do.  Code that accesses peer-related information should be prepared for
+/// frequent `Err` results.
+///
+/// [`Download`]: crate::Download
 #[derive(Clone, Debug)]
 pub struct Peer {
     inner: Arc<PeerInner>,

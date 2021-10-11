@@ -1,3 +1,38 @@
+/*! # rtorrent-xmlrpc-bindings
+
+`rtorrent-xmlrpc-bindings` provides strongly-typed Rust bindings for the [rtorrent] [XMLRPC API].
+
+The XMLRPC API allows a high degree of introspection and control over an rtorrent instance.
+
+## Usage
+
+The top-level structure representing an rtorrent instance is [`Server`].  All errors produced by
+the crate are encapsulated by the [`Error`] type.
+
+```rust
+use rtorrent_xmlrpc_bindings as rtorrent;
+
+let my_handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
+println!("Hostname: {}", my_handle.hostname()?);
+
+for download in my_handle.download_list()? {
+    println!("Download: {}", download.name()?);
+}
+```
+
+## Current Limitations
+
+* Some XMLRPC APIs are not yet wrapped by this crate.
+* Multicalls, which could make some queries much more efficient, are not currently supported by
+  this crate.
+
+[rtorrent]: https://rakshasa.github.io/rtorrent/
+[XMLRPC API]: https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html
+
+[`Error`]: crate::Error
+[`Server`]: crate::Server
+!*/
+
 use std::sync::Arc;
 use xmlrpc::{Request, Value};
 

@@ -1,3 +1,10 @@
+/*! Torrent files
+
+This module defines the [`File`] type and support code.
+
+[`File`]: crate::File
+!*/
+
 use crate::macros::*;
 use crate::{value_conversion, Download, Result};
 use std::sync::Arc;
@@ -27,7 +34,33 @@ pub(crate) struct FileInner {
     index: i64,
 }
 
-/// Represents a single file associated with a download.
+/// A single `File` associated with a [`Download`]
+///
+/// Accessors on `File` correspond to the `f.*` rtorrent APIs.
+///
+/// # Examples
+///
+/// Enumerating files associated with a download:
+///
+/// ```rust
+/// let dl: Download = ...;
+/// for file in dl.files()? {
+///     print_file_info(file)?;
+/// }
+/// ```
+///
+/// Introspecting a file:
+///
+/// ```rust
+/// fn print_file_info(file: File) -> Result<(), rtorrent::Error> {
+///     println!("{} MB: {}",
+///         file.size_bytes()? / 1000_000,
+///         file.path()?);
+///     Ok(())
+/// }
+/// ```
+///
+/// [`Download`]: crate::Download
 #[derive(Clone, Debug)]
 pub struct File {
     inner: Arc<FileInner>,

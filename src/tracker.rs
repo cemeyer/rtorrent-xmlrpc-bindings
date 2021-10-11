@@ -1,3 +1,10 @@
+/*! Torrent trackers
+
+This module defines the [`Tracker`] type and support code.
+
+[`Tracker`]: crate::Tracker
+!*/
+
 use crate::macros::*;
 use crate::{value_conversion, Download, Result};
 use std::sync::Arc;
@@ -15,7 +22,31 @@ pub(crate) struct TrackerInner {
     index: i64,
 }
 
-/// Represents a tracker associated with a download.
+/// `Tracker` - a tracker associated with a specific download
+///
+/// Accessors on `Tracker` correspond to the `t.*` rtorrent APIs.
+///
+/// # Examples
+///
+/// Enumerating the trackers associated with a [`Download`]:
+///
+/// ```rust
+/// let dl: Download = ...;
+/// for tracker in dl.trackers()? {
+///     print_tracker_info(tracker)?;
+/// }
+/// ```
+///
+/// Introspecting a tracker:
+///
+/// ```rust
+/// fn print_tracker_info(tracker: Tracker) -> Result<(), rtorrent::Error> {
+///     println!("Tracker URL: {}", tracker.url()?);
+///     Ok(())
+/// }
+/// ```
+///
+/// [`Download`]: crate::Download
 #[derive(Clone, Debug)]
 pub struct Tracker {
     inner: Arc<TrackerInner>,
