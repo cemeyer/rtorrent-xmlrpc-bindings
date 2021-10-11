@@ -87,15 +87,16 @@ pub(crate) struct DownloadInner {
 /// }
 /// ```
 ///
-/// Enumerating [`File`](s) associated with a torrent (torrents contain one or more individual files):
+/// Enumerating [`File`]s associated with a torrent (torrents contain one or more individual files):
 ///
 /// ```rust
 /// let dl: Download = ...;
 /// for file in dl.files()? {
 ///     print_file_info(file)?;
 /// }
+/// ```
 ///
-/// Enumerating [`Tracker`](s) associated with a torrent (torrents use one or more tracker(s) to
+/// Enumerating [`Tracker`]s associated with a torrent (torrents use one or more tracker(s) to
 /// locate peers in the swarm):
 ///
 /// ```rust
