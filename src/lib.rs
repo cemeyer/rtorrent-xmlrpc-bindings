@@ -130,6 +130,16 @@ impl Server {
         /// Get the hostname associated with this rtorrent instance.
         hostname, "system.hostname");
 
+    server_str_getter!(
+        /// Get the XMLRPC API version associated with this instance.
+        api_version, "system.api_version");
+    server_str_getter!(
+        /// Get the rtorrent version associated with this instance.
+        client_version, "system.client_version");
+    server_str_getter!(
+        /// Get the libtorrent version associated with this instance.
+        library_version, "system.library_version");
+
     server_int_getter!(
         /// Get the total downloaded metric for this instance (bytes).
         down_total, "throttle.global_down.total");
