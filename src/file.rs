@@ -76,24 +76,19 @@ impl File {
         self.inner.download.endpoint()
     }
 
-    f_str_getter!(
-        /// Get the path of this file, relative to the download's base path.
-        path);
-    f_str_getter!(
-        /// Get the absolute path of this file.
-        frozen_path);
-    f_int_getter!(
-        /// Get the size of the file, in bytes.
-        size_bytes);
-
-    f_int_getter!(
-        /// The number of chunks associated with this file (including chunks that only partially
-        /// include this file).
-        size_chunks);
     f_int_getter!(
         /// The number of completed chunks associated with this file (including chunks that only
         /// partially include this file).
         completed_chunks);
+    f_str_getter!(
+        /// Get the absolute path of this file.
+        frozen_path);
+    f_int_getter!(
+        /// The offset (in bytes) of the file from the start of the torrent data.
+        offset);
+    f_str_getter!(
+        /// Get the path of this file, relative to the download's base path.
+        path);
 
     f_int_getter!(
         /// The priority of the file.
@@ -107,8 +102,13 @@ impl File {
         set_priority, priority);
 
     f_int_getter!(
-        /// The offset (in bytes) of the file from the start of the torrent data.
-        offset);
+        /// Get the size of the file, in bytes.
+        size_bytes);
+
+    f_int_getter!(
+        /// The number of chunks associated with this file (including chunks that only partially
+        /// include this file).
+        size_chunks);
 }
 
 unsafe impl Send for File {}
