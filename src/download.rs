@@ -6,7 +6,8 @@ This module defines the [`Download`] type and support code.
 !*/
 
 use crate::macros::*;
-use crate::{value_conversion, Error, File, Peer, Result, Server, Tracker};
+use crate::{value_conversion, File, Peer, Result, Server, Tracker};
+use crate::multicall::MultiBuilder;
 use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
@@ -139,26 +140,22 @@ impl Download {
         &self.inner.sha1_hex
     }
 
+    /// Perform a "p.multicall", with a single accessor.
+    fn pmulticall1<T: TryFromValue>(&self, get1: &str) -> Result<Vec<(T,)>> {
+        let builder = MultiBuilder::new(
+            &self.inner.server,
+            "p.multicall",
+            self.sha1_hex(),
+            "");
+        builder.call(&format!("p.{}", get1)).invoke()
+    }
+
     /// Get a list of active peers associated with this download.
     pub fn peers(&self) -> Result<Vec<Peer>> {
-        let raw_list = Request::new("p.multicall")
-            .arg(self.sha1_hex())
-            .arg("")
-            .arg(Value::Array(vec!["p.id=".into()]))
-            .call_url(self.endpoint())?;
-        let list = value_conversion::list(&raw_list)?
-            .iter()
-            .map(|ll| {
-                let peerhash = value_conversion::list(ll)?
-                    .get(0)
-                    .ok_or(Error::UnexpectedStructure(
-                            format!("expected non-empty inner list, got {:?}", ll)
-                        ))?;
-                let peerhash = value_conversion::string(peerhash)?;
-                Ok(Peer::new(self.clone(), peerhash))
-            })
-            .collect();
-        list
+        self.pmulticall1::<String>("id")?
+            .into_iter()
+            .map(|(id,)| Ok(Peer::new(self.clone(), &id)))
+            .collect()
     }
 
     /// Get a list of files associated with this download.

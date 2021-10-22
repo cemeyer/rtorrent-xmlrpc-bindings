@@ -1,8 +1,8 @@
 use crate::{Error, Result, Value};
 
-// Essentially TryFrom<Value> with crate::Error, but we need our own trait because crates are not
-// allowed to define implementations of traits from foreign crates on types from forein crates.
-pub(crate) trait TryFromValue: Sized {
+/// Essentially TryFrom<Value> with crate::Error, but we need our own trait because crates are not
+/// allowed to define implementations of traits from foreign crates on types from forein crates.
+pub trait TryFromValue: Sized {
     fn try_from_value(val: &Value) -> Result<Self>;
 }
 

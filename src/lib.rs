@@ -23,8 +23,6 @@ for download in my_handle.download_list()? {
 ## Current Limitations
 
 * Some XMLRPC APIs are not yet wrapped by this crate.
-* Multicalls, which could make some queries much more efficient, are not currently supported by
-  this crate.
 
 [rtorrent]: https://rakshasa.github.io/rtorrent/
 [XMLRPC API]: https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html
@@ -39,14 +37,16 @@ use xmlrpc::{Request, Value};
 pub(crate) mod value_conversion;
 mod download;
 mod file;
+mod multicall;
 mod peer;
 mod tracker;
 
 pub use download::Download;
 pub use file::File;
+pub use multicall::MultiBuilder;
 pub use peer::Peer;
 pub use tracker::Tracker;
-pub(crate) use value_conversion::TryFromValue;
+pub use value_conversion::TryFromValue;
 
 /// The canonical [`Result`] for this crate (we return the same error type everywhere).
 pub type Result<T> = std::result::Result<T, Error>;
