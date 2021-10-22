@@ -6,13 +6,13 @@ This module defines the [`Tracker`] type and support code.
 !*/
 
 use crate::macros::*;
-use crate::{value_conversion, Download, Result};
+use crate::{Download, Result};
 use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
 macro_rules! t_str_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        prim_getter!($(#[$meta])* "t.", $method, String, string_owned);
+        prim_getter!($(#[$meta])* "t.", $method, String);
     }
 }
 

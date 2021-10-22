@@ -46,6 +46,7 @@ pub use download::Download;
 pub use file::File;
 pub use peer::Peer;
 pub use tracker::Tracker;
+pub(crate) use value_conversion::TryFromValue;
 
 /// The canonical [`Result`] for this crate (we return the same error type everywhere).
 pub type Result<T> = std::result::Result<T, Error>;
@@ -63,24 +64,13 @@ impl From<xmlrpc::Error> for Error {
     }
 }
 
-macro_rules! server_str_getter {
-    ($(#[$meta:meta])* $method: ident, $api: literal) => {
+macro_rules! server_getter {
+    ($(#[$meta:meta])* $method: ident, $api: literal, $ty: ty) => {
         $(#[$meta])*
-        pub fn $method(&self) -> Result<String> {
+        pub fn $method(&self) -> Result<$ty> {
             let val = Request::new($api)
                 .call_url(self.endpoint())?;
-            value_conversion::string_owned(&val)
-        }
-    }
-}
-
-macro_rules! server_int_getter {
-    ($(#[$meta:meta])* $method: ident, $api: literal) => {
-        $(#[$meta])*
-        pub fn $method(&self) -> Result<i64> {
-            let val = Request::new($api)
-                .call_url(self.endpoint())?;
-            value_conversion::int(&val)
+            <$ty as TryFromValue>::try_from_value(&val)
         }
     }
 }
@@ -123,52 +113,54 @@ impl Server {
             .collect()
     }
 
-    server_str_getter!(
+    server_getter!(
         /// Get the IP address associated with this rtorrent instance.
-        ip, "network.bind_address");
-    server_str_getter!(
+        ip, "network.bind_address", String);
+    server_getter!(
         /// Get the hostname associated with this rtorrent instance.
-        hostname, "system.hostname");
+        hostname, "system.hostname", String);
 
-    server_str_getter!(
+    server_getter!(
         /// Get the XMLRPC API version associated with this instance.
-        api_version, "system.api_version");
-    server_str_getter!(
+        api_version, "system.api_version", String);
+    server_getter!(
         /// Get the rtorrent version associated with this instance.
-        client_version, "system.client_version");
-    server_str_getter!(
+        client_version, "system.client_version", String);
+    server_getter!(
         /// Get the libtorrent version associated with this instance.
-        library_version, "system.library_version");
+        library_version, "system.library_version", String);
 
-    server_int_getter!(
+    server_getter!(
         /// Get the total downloaded metric for this instance (bytes).
-        down_total, "throttle.global_down.total");
-    server_int_getter!(
+        down_total, "throttle.global_down.total", i64);
+    server_getter!(
         /// Get the current download rate for this instance (bytes/s).
-        down_rate, "throttle.global_down.rate");
-    server_int_getter!(
+        down_rate, "throttle.global_down.rate", i64);
+    server_getter!(
         /// Get the total uploaded metric for this instance (bytes).
-        up_total, "throttle.global_up.total");
-    server_int_getter!(
+        up_total, "throttle.global_up.total", i64);
+    server_getter!(
         /// Get the current upload rate for this instance (bytes/s).
-        up_rate, "throttle.global_up.rate");
+        up_rate, "throttle.global_up.rate", i64);
 }
 
 unsafe impl Send for Server {}
 unsafe impl Sync for Server {}
 
 pub(crate) mod macros {
+    pub(crate) use super::TryFromValue;
+
     macro_rules! prim_getter {
         (
             $(#[$meta:meta])*
-            $ns: literal, $method: ident, $result: ty, $conv: ident
+            $ns: literal, $method: ident, $result: ty
         ) => {
             $(#[$meta])*
             pub fn $method(&self) -> Result<$result> {
                 let val = Request::new(concat!($ns, stringify!($method)))
                     .arg(self)
                     .call_url(self.endpoint())?;
-                value_conversion::$conv(&val)
+                <$result as TryFromValue>::try_from_value(&val)
             }
         }
     }
@@ -176,14 +168,14 @@ pub(crate) mod macros {
     macro_rules! prim_getter_named {
         (
             $(#[$meta:meta])*
-            $ns: literal, $method: ident, $result: ty, $conv: ident, $apimethod: literal
+            $ns: literal, $method: ident, $result: ty, $apimethod: literal
         ) => {
             $(#[$meta])*
             pub fn $method(&self) -> Result<$result> {
                 let val = Request::new(concat!($ns, $apimethod))
                     .arg(self)
                     .call_url(self.endpoint())?;
-                value_conversion::$conv(&val)
+                <$result as TryFromValue>::try_from_value(&val)
             }
         }
     }
@@ -200,7 +192,7 @@ pub(crate) mod macros {
                     .arg(self)
                     .arg(new)
                     .call_url(self.endpoint())?;
-                value_conversion::void(&val)
+                <() as TryFromValue>::try_from_value(&val)
             }
         }
     }

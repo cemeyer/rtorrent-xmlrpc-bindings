@@ -6,19 +6,19 @@ This module defines the [`File`] type and support code.
 !*/
 
 use crate::macros::*;
-use crate::{value_conversion, Download, Result};
+use crate::{Download, Result};
 use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
 macro_rules! f_int_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        prim_getter!($(#[$meta])* "f.", $method, i64, int);
+        prim_getter!($(#[$meta])* "f.", $method, i64);
     }
 }
 
 macro_rules! f_str_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        prim_getter!($(#[$meta])* "f.", $method, String, string_owned);
+        prim_getter!($(#[$meta])* "f.", $method, String);
     }
 }
 

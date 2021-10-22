@@ -6,31 +6,31 @@ This module defines the [`Peer`] type and support code.
 !*/
 
 use crate::macros::*;
-use crate::{value_conversion, Download, Result};
+use crate::{Download, Result};
 use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
 macro_rules! p_getter {
-    ($(#[$meta:meta])* $method: ident, $result: ty, $conv: ident) => {
-        prim_getter!($(#[$meta])* "p.", $method, $result, $conv);
+    ($(#[$meta:meta])* $method: ident, $result: ty) => {
+        prim_getter!($(#[$meta])* "p.", $method, $result);
     }
 }
 
 macro_rules! p_bool_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        p_getter!($(#[$meta])* $method, bool, bool);
+        p_getter!($(#[$meta])* $method, bool);
     }
 }
 
 macro_rules! p_int_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        p_getter!($(#[$meta])* $method, i64, int);
+        p_getter!($(#[$meta])* $method, i64);
     }
 }
 
 macro_rules! p_str_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        p_getter!($(#[$meta])* $method, String, string_owned);
+        p_getter!($(#[$meta])* $method, String);
     }
 }
 

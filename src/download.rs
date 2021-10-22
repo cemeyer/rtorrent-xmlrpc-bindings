@@ -11,38 +11,38 @@ use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
 macro_rules! d_getter {
-    ($(#[$meta:meta])* $method: ident, $result: ty, $conv: ident) => {
-        prim_getter!($(#[$meta])* "d.", $method, $result, $conv);
+    ($(#[$meta:meta])* $method: ident, $result: ty) => {
+        prim_getter!($(#[$meta])* "d.", $method, $result);
     }
 }
 
 macro_rules! d_str_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        d_getter!($(#[$meta])* $method, String, string_owned);
+        d_getter!($(#[$meta])* $method, String);
     }
 }
 
 macro_rules! d_bool_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        d_getter!($(#[$meta])* $method, bool, bool);
+        d_getter!($(#[$meta])* $method, bool);
     }
 }
 
 macro_rules! d_f1000_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        d_getter!($(#[$meta])* $method, f64, fraction1000);
+        d_getter!($(#[$meta])* $method, f64);
     }
 }
 
 macro_rules! d_int_getter {
     ($(#[$meta:meta])* $method: ident) => {
-        d_getter!($(#[$meta])* $method, i64, int);
+        d_getter!($(#[$meta])* $method, i64);
     }
 }
 
 macro_rules! d_int_getter_named {
     ($(#[$meta:meta])* $method: ident, $apimethod: literal) => {
-        prim_getter_named!($(#[$meta])* "d.", $method, i64, int, $apimethod);
+        prim_getter_named!($(#[$meta])* "d.", $method, i64, $apimethod);
     }
 }
 
