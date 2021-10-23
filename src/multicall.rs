@@ -3,30 +3,6 @@
 This module defines the [`MultiBuilder`] type, which is a tool for building queries of multiple
 fields across a single XMLRPC call.  The query results are nicely typed.
 
-## Usage
-
-```rust
-use rtorrent_xmlrpc_bindings as rtorrent;
-
-let my_handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
-
-// This call's result rows will consist of downloads in the "default" view.
-let callbuilder = MultiBuilder::new(&my_handle, "d.multicall2", "", "default");
-
-let rows = callbuilder.call::<String>("d.name")
-    .call::<f64>("d.ratio")
-    .call::<i64>("d.size_bytes")
-    .invoke()?;
-for (name, ratio, bytes) in rows {
-    println!("{}: {} bytes, {} ratio", name, bytes, ratio);
-}
-```
-
-## Current Limitations
-
-* It might be nice to have some prepopulated singletons of API, type pairs.  I'm not yet sure what
-  that would look like.
-
 [`MultiBuilder`]: crate::MultiBuilder
 !*/
 
@@ -72,16 +48,52 @@ impl MultiBuilderInternal {
     }
 }
 
-/// Builder to construct a query of the same accessor(s) across many target objects.
+/// The `MultiBuilder` type is a tool for building queries of one or more fields across many items,
+/// in a single XMLRPC call.  The query results are nicely typed.
+///
+/// ## Usage
+///
+/// ```rust
+/// use rtorrent_xmlrpc_bindings as rtorrent;
+///
+/// let my_handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
+///
+/// // This call's result rows will consist of downloads in the "default" view.
+/// let callbuilder = MultiBuilder::new(&my_handle, "d.multicall2", "", "default");
+///
+/// let rows = callbuilder.call::<String>("d.name")
+///     .call::<f64>("d.ratio")
+///     .call::<i64>("d.size_bytes")
+///     .invoke()?;
+/// for (name, ratio, bytes) in rows {
+///     println!("{}: {} bytes, {} ratio", name, bytes, ratio);
+/// }
+/// ```
+///
+/// The `call()` method can be invoked repeatedly to add more columns to the query -- in the above
+/// example, selecting the "d.name", "d.ratio", and "d.size_bytes" columns.
+///
+/// ## Current Limitations
+///
+/// * It might be nice to have some prepopulated singletons of API, type pairs.  I'm not yet sure what
+///   that would look like.
+///
+/// [`MultiBuilder`]: crate::MultiBuilder
 pub struct MultiBuilder {
     inner: MultiBuilderInternal,
 }
 
 impl MultiBuilder {
-    /// Start building a multicall against `server` using the XMLRPC function `multicall`.  The
-    /// `call_target` is some rtorrent identifier (SHA1 hex).  The `call_filter` behavior will
-    /// depend on the specific `multicall` operation.  Usually the empty string is equivalent to
-    /// unfiltered.
+    /// Start building a multicall against `server` using the XMLRPC function specified by `multicall`.
+    ///
+    /// There are always some `call_target` and `call_filter` strings.
+    ///
+    /// `call_target` is often a torrent identified (SHA1 hex) for `t.*`, `p.*`, and `f.*` queries,
+    /// but it is the empty string (`""`) for `d.*` queries.
+    ///
+    /// `call_filter` behavior varies according to the specific `multicall` operation.  Usually the
+    /// empty string is equivalent to unfiltered.  For `d.*` queries, the filter corresponds to
+    /// some rtorrent "view."
     pub fn new(server: &Server, multicall: &str, call_target: &str, call_filter: &str) -> Self {
         Self {
             inner: MultiBuilderInternal::new(server,
@@ -125,7 +137,14 @@ macro_rules! define_builder {
         }
 
         impl<$($ty: TryFromValue,)*> $prev<$($ty,)*> {
-            /// Add an accessor for `getter` (resulting in type `T`) to the query represented by this builder.
+            /// Add a column (an accessor for `getter`) of type `T` to the query represented by
+            /// this builder.
+            ///
+            /// `call()` can be invoked again, repeatedly, on the result of `call()` invocations,
+            /// to build queries with more columns.
+            ///
+            /// (The higher-order builder types are invisible in Rustdoc because they are generated
+            /// by macros.)
             pub fn call<T: TryFromValue>(self, getter: &str) -> $name<$($ty,)* T> {
                 let mut inner = self.inner;
                 inner.args.push(Value::from(format!("{}=", getter)));
@@ -142,3 +161,4 @@ macro_rules! define_builder {
 define_builder!(MultiBuilder,  MultiBuilder1, | phantom_a A);
 define_builder!(MultiBuilder1, MultiBuilder2, phantom_a A | phantom_b B);
 define_builder!(MultiBuilder2, MultiBuilder3, phantom_a A, phantom_b B | phantom_c C);
+define_builder!(MultiBuilder3, MultiBuilder4, phantom_a A, phantom_b B, phantom_c C | phantom_d D);
