@@ -88,7 +88,7 @@ impl MultiBuilder {
     ///
     /// There are always some `call_target` and `call_filter` strings.
     ///
-    /// `call_target` is often a torrent identified (SHA1 hex) for `t.*`, `p.*`, and `f.*` queries,
+    /// `call_target` is often a torrent identifier (SHA1 hex) for `t.*`, `p.*`, and `f.*` queries,
     /// but it is the empty string (`""`) for `d.*` queries.
     ///
     /// `call_filter` behavior varies according to the specific `multicall` operation.  Usually the
