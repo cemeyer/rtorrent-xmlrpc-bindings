@@ -80,8 +80,6 @@ impl MultiBuilderInternal {
 ///
 /// * It might be nice to have some prepopulated singletons of API, type pairs.  I'm not yet sure what
 ///   that would look like.
-///
-/// [`MultiBuilder`]: crate::MultiBuilder
 pub(crate) struct MultiBuilder {
     pub(super) inner: MultiBuilderInternal,
 }

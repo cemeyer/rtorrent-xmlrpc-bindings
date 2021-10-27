@@ -7,7 +7,7 @@ This module defines the [`Download`] type and support code.
 
 use crate::macros::*;
 use crate::{value_conversion, File, Peer, Result, Server, Tracker};
-use crate::multicall::MultiBuilder;
+use crate::multicall::p;
 use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
@@ -140,19 +140,11 @@ impl Download {
         &self.inner.sha1_hex
     }
 
-    /// Perform a "p.multicall", with a single accessor.
-    fn pmulticall1<T: TryFromValue>(&self, get1: &str) -> Result<Vec<(T,)>> {
-        let builder = MultiBuilder::new(
-            &self.inner.server,
-            "p.multicall",
-            self.sha1_hex(),
-            "");
-        builder.call(&format!("p.{}", get1)).invoke()
-    }
-
     /// Get a list of active peers associated with this download.
     pub fn peers(&self) -> Result<Vec<Peer>> {
-        self.pmulticall1::<String>("id")?
+        p::MultiBuilder::new(&self.inner.server, self.sha1_hex())
+            .call(p::ID)
+            .invoke()?
             .into_iter()
             .map(|(id,)| Ok(Peer::new(self.clone(), &id)))
             .collect()
