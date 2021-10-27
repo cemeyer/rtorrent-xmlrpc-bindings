@@ -125,9 +125,16 @@ pub struct Download {
 }
 
 impl Download {
-    pub(crate) fn from_value(server: Server, val: &Value) -> Result<Self> {
+    pub(crate) fn from_value(server: &Server, val: &Value) -> Result<Self> {
         let s = value_conversion::string(val)?;
-        Ok(Self { inner: Arc::new(DownloadInner { server, sha1_hex: s.to_owned() }) })
+        Ok(Self::from_hash(server, s))
+    }
+
+    /// Construct a Download representing the given infohash on the specified server.  This
+    /// constructor does not validate that the infohash is valid or actually exists on the server.
+    pub fn from_hash(server: &Server, hash: &str) -> Self {
+        let server = server.clone();
+        Self { inner: Arc::new(DownloadInner { server, sha1_hex: hash.to_owned() }) }
     }
 
     #[inline]

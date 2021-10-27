@@ -108,7 +108,7 @@ impl Server {
         let raw_list = Request::new("download_list").call_url(self.endpoint())?;
         value_conversion::list(&raw_list)?
             .iter()
-            .map(|v| Download::from_value(self.clone(), v))
+            .map(|v| Download::from_value(&self, v))
             .collect()
     }
 
