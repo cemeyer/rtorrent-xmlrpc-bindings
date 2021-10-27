@@ -67,19 +67,23 @@ pub(crate) struct DownloadInner {
 ///
 /// Enumerating downloads on an rtorrent instance:
 ///
-/// ```rust
+/// ```no_run
 /// use rtorrent_xmlrpc_bindings as rtorrent;
 ///
 /// let my_handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
 /// for download in my_handle.download_list()? {
 ///     println!("Download: {}", download.name()?);
 /// }
+/// # Ok::<(), rtorrent::Error>(())
 /// ```
 ///
 /// Introspecting downloads:
 ///
-/// ```rust
-/// fn print_download_info(dl: Download) -> Result<(), rtorrent::Error> {
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// use rtorrent::{Download, Result};
+///
+/// fn print_download_info(dl: Download) -> Result<()> {
 ///     println!("{}: {} MB. Ratio: {}",
 ///         dl.name()?,
 ///         dl.size_bytes()? / 1000_000,
@@ -90,29 +94,51 @@ pub(crate) struct DownloadInner {
 ///
 /// Enumerating [`File`]s associated with a torrent (torrents contain one or more individual files):
 ///
-/// ```rust
-/// let dl: Download = ...;
-/// for file in dl.files()? {
-///     print_file_info(file)?;
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// # use rtorrent::Download;
+/// # use rtorrent::Result;
+/// # fn print_file_info(f: rtorrent::File) -> Result<()> {
+/// #     Ok(())
+/// # }
+/// fn enum_files(dl: Download) -> Result<()> {
+///     for file in dl.files()? {
+///         print_file_info(file)?;
+///     }
+///     Ok(())
 /// }
 /// ```
 ///
 /// Enumerating [`Tracker`]s associated with a torrent (torrents use one or more tracker(s) to
 /// locate peers in the swarm):
 ///
-/// ```rust
-/// let dl: Download = ...;
-/// for tracker in dl.trackers()? {
-///     print_tracker_info(tracker)?;
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// # use rtorrent::{Download, Result};
+/// # fn print_tracker_info(t: rtorrent::Tracker) -> Result<()> {
+/// #     Ok(())
+/// # }
+/// fn enum_trackers(dl: Download) -> Result<()> {
+///     for tracker in dl.trackers()? {
+///         print_tracker_info(tracker)?;
+///     }
+///     Ok(())
 /// }
 /// ```
 ///
 /// Enumerating [`Peer`]s in the swarm associated with a torrent:
 ///
-/// ```rust
-/// let dl: Download = ...;
-/// for peer in dl.peers()? {
-///     print_peer_info(peer)?;
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// # use rtorrent::{Download, Result};
+/// # fn print_peer_info(t: rtorrent::Peer) -> Result<()> {
+/// #     Ok(())
+/// # }
+/// fn enum_peers(dl: Download) -> Result<()> {
+///     for peer in dl.peers()? {
+///         print_peer_info(peer)?;
+///     }
+///     Ok(())
 /// }
 /// ```
 ///

@@ -16,7 +16,7 @@ super::op_type! {
 ///
 /// Example: Print every tracker URL associated with a download.
 ///
-/// ```rust
+/// ```no_run
 /// use rtorrent_xmlrpc_bindings as rtorrent;
 /// use rtorrent::multicall::t;
 ///
@@ -33,6 +33,7 @@ super::op_type! {
 ///     println!("{}: URLs: {:?}", name, tracker_urls);
 ///     break;
 /// }
+/// # Ok::<(), rtorrent::Error>(())
 /// ```
 ///
 /// The `call()` method can be invoked repeatedly to add more columns to the query.

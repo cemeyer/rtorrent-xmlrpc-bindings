@@ -16,7 +16,7 @@ super::op_type! {
 ///
 /// Example: Print every file associated with a download.
 ///
-/// ```rust
+/// ```no_run
 /// use rtorrent_xmlrpc_bindings as rtorrent;
 /// use rtorrent::multicall::f;
 ///
@@ -25,11 +25,13 @@ super::op_type! {
 /// for download in my_handle.download_list()? {
 ///     let name = download.name()?;
 ///     println!("{}: {:?}",
+///         name,
 ///         f::MultiBuilder::new(&my_handle, download.sha1_hex(), None)
 ///             .call(f::PATH)
 ///             .invoke()?);
 ///     break;
 /// }
+/// # Ok::<(), rtorrent::Error>(())
 /// ```
 ///
 /// The `call()` method can be invoked repeatedly to add more columns to the query.

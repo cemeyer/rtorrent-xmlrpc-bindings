@@ -40,22 +40,38 @@ pub(crate) struct FileInner {
 ///
 /// # Examples
 ///
-/// Enumerating files associated with a download:
-///
-/// ```rust
-/// let dl: Download = ...;
-/// for file in dl.files()? {
-///     print_file_info(file)?;
-/// }
-/// ```
-///
 /// Introspecting a file:
 ///
-/// ```rust
-/// fn print_file_info(file: File) -> Result<(), rtorrent::Error> {
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// # use rtorrent::Download;
+/// # use rtorrent::File;
+/// # use rtorrent::Result;
+/// fn print_file_info(file: File) -> Result<()> {
 ///     println!("{} MB: {}",
 ///         file.size_bytes()? / 1000_000,
 ///         file.path()?);
+///     Ok(())
+/// }
+/// ```
+///
+/// Enumerating files associated with a download:
+///
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// # use rtorrent::Download;
+/// # use rtorrent::File;
+/// # use rtorrent::Result;
+/// # fn print_file_info(file: File) -> Result<()> {
+/// #     println!("{} MB: {}",
+/// #         file.size_bytes()? / 1000_000,
+/// #         file.path()?);
+/// #     Ok(())
+/// # }
+/// fn enum_files(dl: Download) -> Result<()> {
+///     for file in dl.files()? {
+///         print_file_info(file)?;
+///     }
 ///     Ok(())
 /// }
 /// ```

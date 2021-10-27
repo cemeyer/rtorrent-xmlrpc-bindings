@@ -52,22 +52,33 @@ pub(crate) struct PeerInner {
 ///
 /// # Examples
 ///
-/// Enumerating peers associated with a download:
-///
-/// ```rust
-/// let dl: Download = ...;
-/// for peer in dl.peers()? {
-///     print_peer_info(peer)?;
-/// }
-/// ```
-///
 /// Introspecting a peer:
 ///
-/// ```rust
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// # use rtorrent::Peer;
 /// fn print_peer_info(peer: Peer) {
 ///     if let Ok(address) = peer.address() {
 ///         println!("Peer IP: {}", address);
 ///     }
+/// }
+/// ```
+///
+/// Enumerating peers associated with a download:
+///
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// # use rtorrent::{Download, Peer, Result};
+/// # fn print_peer_info(peer: Peer) {
+/// #     if let Ok(address) = peer.address() {
+/// #         println!("Peer IP: {}", address);
+/// #     }
+/// # }
+/// fn enum_peers(dl: Download) -> Result<()> {
+///     for peer in dl.peers()? {
+///         print_peer_info(peer);
+///     }
+///     Ok(())
 /// }
 /// ```
 ///

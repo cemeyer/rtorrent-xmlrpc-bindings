@@ -9,7 +9,7 @@ The XMLRPC API allows a high degree of introspection and control over an rtorren
 The top-level structure representing an rtorrent instance is [`Server`].  All errors produced by
 the crate are encapsulated by the [`Error`] type.
 
-```rust
+```no_run
 use rtorrent_xmlrpc_bindings as rtorrent;
 
 let my_handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
@@ -18,6 +18,7 @@ println!("Hostname: {}", my_handle.hostname()?);
 for download in my_handle.download_list()? {
     println!("Download: {}", download.name()?);
 }
+# Ok::<(), rtorrent::Error>(())
 ```
 
 It can be more efficient to query multiple items at a time.  Rtorrent's XMLRPC API exposes an
@@ -27,7 +28,7 @@ interface for this called "multicalls."  In this crate, they are available throu
 The following example queries the name and ratio of every torrent in rtorrent's "default" view and
 prints the results.
 
-```rust
+```no_run
 use rtorrent_xmlrpc_bindings as rtorrent;
 use rtorrent::multicall::d;
 
@@ -41,6 +42,7 @@ d::MultiBuilder::new(&my_handle, "default")
     .for_each(|(name, ratio)| {
         println!("{}: ratio: {}", name, ratio);
     });
+# Ok::<(), rtorrent::Error>(())
 ```
 
 ## Current Limitations
@@ -112,11 +114,14 @@ pub struct Server {
 impl Server {
     /// Instantiate the API at some URI.
     ///
-    /// ```
+    /// ```no_run
+    /// # use rtorrent_xmlrpc_bindings as rtorrent;
+    /// # use rtorrent::Server;
     /// let server = Server::new("http://myhostname/RPC2");
     /// for dl in server.download_list()? {
     ///   // ...
     /// }
+    /// # Ok::<(), rtorrent::Error>(())
     /// ```
     pub fn new(endpoint: &str) -> Self {
         Self { inner: Arc::new(ServerInner { endpoint: endpoint.to_owned() }) }

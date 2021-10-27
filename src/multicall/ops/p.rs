@@ -16,7 +16,7 @@ super::op_type! {
 ///
 /// Example: Print every peer and peer IP address associated with a download.
 ///
-/// ```rust
+/// ```no_run
 /// use rtorrent_xmlrpc_bindings as rtorrent;
 /// use rtorrent::multicall::p;
 ///
@@ -34,6 +34,7 @@ super::op_type! {
 ///         });
 ///     break;
 /// }
+/// # Ok::<(), rtorrent::Error>(())
 /// ```
 ///
 /// The `call()` method can be invoked repeatedly to add more columns to the query -- in the above

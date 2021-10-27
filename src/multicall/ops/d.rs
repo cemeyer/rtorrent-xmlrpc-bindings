@@ -16,7 +16,7 @@ super::op_type! {
 ///
 /// Example: Print name, size, and upload ratio for all downloads in the "default" view.
 ///
-/// ```rust
+/// ```no_run
 /// use rtorrent_xmlrpc_bindings as rtorrent;
 /// use rtorrent::multicall::d;
 ///
@@ -31,6 +31,7 @@ super::op_type! {
 ///     .for_each(|(name, ratio, bytes)| {
 ///         println!("{}: {} bytes, {} ratio", name, bytes, ratio);
 ///     });
+/// # Ok::<(), rtorrent::Error>(())
 /// ```
 ///
 /// The `call()` method can be invoked repeatedly to add more columns to the query -- in the above

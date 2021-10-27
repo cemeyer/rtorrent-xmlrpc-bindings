@@ -51,35 +51,31 @@ impl MultiBuilderInternal {
     }
 }
 
-/// The `MultiBuilder` type is a tool for building queries of one or more fields across many items,
-/// in a single XMLRPC call.  The query results are nicely typed.
-///
-/// ## Usage
-///
-/// ```rust
-/// use rtorrent_xmlrpc_bindings as rtorrent;
-///
-/// let my_handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
-///
-/// // This call's result rows will consist of downloads in the "default" view.
-/// let callbuilder = MultiBuilder::new(&my_handle, "d.multicall2", "", "default");
-///
-/// let rows = callbuilder.call::<String>("d.name")
-///     .call::<f64>("d.ratio")
-///     .call::<i64>("d.size_bytes")
-///     .invoke()?;
-/// for (name, ratio, bytes) in rows {
-///     println!("{}: {} bytes, {} ratio", name, bytes, ratio);
-/// }
-/// ```
-///
-/// The `call()` method can be invoked repeatedly to add more columns to the query -- in the above
-/// example, selecting the "d.name", "d.ratio", and "d.size_bytes" columns.
-///
-/// ## Current Limitations
-///
-/// * It might be nice to have some prepopulated singletons of API, type pairs.  I'm not yet sure what
-///   that would look like.
+// The `MultiBuilder` type is a tool for building queries of one or more fields across many items,
+// in a single XMLRPC call.  The query results are nicely typed.
+//
+// ## Usage
+//
+// ```no_run
+// use rtorrent_xmlrpc_bindings as rtorrent;
+//
+// let my_handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
+//
+// // This call's result rows will consist of downloads in the "default" view.
+// let callbuilder = MultiBuilder::new(&my_handle, "d.multicall2", "", "default");
+//
+// let rows = callbuilder.call::<String>("d.name")
+//     .call::<f64>("d.ratio")
+//     .call::<i64>("d.size_bytes")
+//     .invoke()?;
+// for (name, ratio, bytes) in rows {
+//     println!("{}: {} bytes, {} ratio", name, bytes, ratio);
+// }
+// # Ok::<(), rtorrent::Error>(())
+// ```
+//
+// The `call()` method can be invoked repeatedly to add more columns to the query -- in the above
+// example, selecting the "d.name", "d.ratio", and "d.size_bytes" columns.
 pub(crate) struct MultiBuilder {
     pub(super) inner: MultiBuilderInternal,
 }

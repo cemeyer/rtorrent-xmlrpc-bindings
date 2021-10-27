@@ -28,20 +28,33 @@ pub(crate) struct TrackerInner {
 ///
 /// # Examples
 ///
-/// Enumerating the trackers associated with a [`Download`]:
+/// Introspecting a tracker:
 ///
-/// ```rust
-/// let dl: Download = ...;
-/// for tracker in dl.trackers()? {
-///     print_tracker_info(tracker)?;
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// # use rtorrent::Tracker;
+/// # use rtorrent::Result;
+/// fn print_tracker_info(tracker: Tracker) -> Result<()> {
+///     println!("Tracker URL: {}", tracker.url()?);
+///     Ok(())
 /// }
 /// ```
 ///
-/// Introspecting a tracker:
+/// Enumerating the trackers associated with a [`Download`]:
 ///
-/// ```rust
-/// fn print_tracker_info(tracker: Tracker) -> Result<(), rtorrent::Error> {
-///     println!("Tracker URL: {}", tracker.url()?);
+/// ```no_run
+/// # use rtorrent_xmlrpc_bindings as rtorrent;
+/// # use rtorrent::Download;
+/// # use rtorrent::Tracker;
+/// # use rtorrent::Result;
+/// # fn print_tracker_info(tracker: Tracker) -> Result<()> {
+/// #     println!("Tracker URL: {}", tracker.url()?);
+/// #     Ok(())
+/// # }
+/// fn enum_trackers(dl: Download) -> Result<()> {
+///     for tracker in dl.trackers()? {
+///         print_tracker_info(tracker)?;
+///     }
 ///     Ok(())
 /// }
 /// ```
