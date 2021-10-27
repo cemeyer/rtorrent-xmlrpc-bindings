@@ -8,11 +8,10 @@ fields across a single XMLRPC call.  The query results are nicely typed.
 
 #![allow(dead_code)]
 
-use crate::{value_conversion::{self, TryFromValue}, Error, Result, Server};
-use std::marker::PhantomData;
+use crate::{value_conversion, Result, Server};
 use xmlrpc::{Request, Value};
 
-struct MultiBuilderInternal {
+pub(super) struct MultiBuilderInternal {
     server: Server,
     multicall: String,
     call_target: Value,
@@ -31,6 +30,10 @@ impl MultiBuilderInternal {
         }
     }
 
+    pub(super) fn push_arg(&mut self, val: Value) {
+        self.args.push(val);
+    }
+
     fn as_request(&self) -> Request {
         let mut req = Request::new(&self.multicall)
             .arg(self.call_target.clone())
@@ -41,7 +44,7 @@ impl MultiBuilderInternal {
         req
     }
 
-    fn invoke(&self) -> Result<Vec<Value>> {
+    pub(crate) fn invoke(&self) -> Result<Vec<Value>> {
         let list = self.as_request()
             .call_url(self.server.endpoint())?;
         Ok(value_conversion::list(&list)?.clone())
@@ -79,8 +82,8 @@ impl MultiBuilderInternal {
 ///   that would look like.
 ///
 /// [`MultiBuilder`]: crate::MultiBuilder
-pub struct MultiBuilder {
-    inner: MultiBuilderInternal,
+pub(crate) struct MultiBuilder {
+    pub(super) inner: MultiBuilderInternal,
 }
 
 impl MultiBuilder {
@@ -94,7 +97,7 @@ impl MultiBuilder {
     /// `call_filter` behavior varies according to the specific `multicall` operation.  Usually the
     /// empty string is equivalent to unfiltered.  For `d.*` queries, the filter corresponds to
     /// some rtorrent "view."
-    pub fn new(server: &Server, multicall: &str, call_target: &str, call_filter: &str) -> Self {
+    pub(crate) fn new(server: &Server, multicall: &str, call_target: &str, call_filter: &str) -> Self {
         Self {
             inner: MultiBuilderInternal::new(server,
                                              multicall,
@@ -108,14 +111,14 @@ macro_rules! define_builder {
     // The pipe is an ugly kludge to allow us to list types left-to-right but avoid Rust macro
     // parsing ambiguity.
     ( $prev: ident, $name: ident, $($phantoms:ident $ty:ident),* | $phantom_last:ident $ty_last:ident ) => {
-        pub struct $name<$($ty: TryFromValue,)* $ty_last: TryFromValue> {
+        pub(crate) struct $name<$($ty: TryFromValue,)* $ty_last: TryFromValue> {
             inner: MultiBuilderInternal,
             $($phantoms: PhantomData<$ty>,)*
             $phantom_last: PhantomData<$ty_last>,
         }
 
         impl<$($ty: TryFromValue,)* $ty_last: TryFromValue> $name<$($ty,)* $ty_last> {
-            pub fn invoke(&self) -> Result<Vec<($($ty,)* $ty_last,)>> {
+            pub(crate) fn invoke(&self) -> Result<Vec<($($ty,)* $ty_last,)>> {
                 let list = self.inner.invoke()?;
                 let mut res = Vec::new();
 
@@ -145,9 +148,9 @@ macro_rules! define_builder {
             ///
             /// (The higher-order builder types are invisible in Rustdoc because they are generated
             /// by macros.)
-            pub fn call<T: TryFromValue>(self, getter: &str) -> $name<$($ty,)* T> {
+            pub(crate) fn call<T: TryFromValue>(self, getter: &str) -> $name<$($ty,)* T> {
                 let mut inner = self.inner;
-                inner.args.push(Value::from(format!("{}=", getter)));
+                inner.push_arg(Value::from(format!("{}=", getter)));
                 $name {
                     inner,
                     $($phantoms: PhantomData,)*
@@ -157,8 +160,4 @@ macro_rules! define_builder {
         }
     }
 }
-
-define_builder!(MultiBuilder,  MultiBuilder1, | phantom_a A);
-define_builder!(MultiBuilder1, MultiBuilder2, phantom_a A | phantom_b B);
-define_builder!(MultiBuilder2, MultiBuilder3, phantom_a A, phantom_b B | phantom_c C);
-define_builder!(MultiBuilder3, MultiBuilder4, phantom_a A, phantom_b B, phantom_c C | phantom_d D);
+pub(super) use define_builder;
