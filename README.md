@@ -34,8 +34,11 @@ correspond to the `f.*` methods in the rtorrent API.  An example is
 
 ## Example
 
+For each torrent, print its name, and whether or not it is active.
+
 ```rust
 use rtorrent_xmlrpc_bindings as rtorrent;
+use rtorrent::Result;
 
 fn main() -> Result<()> {
     let handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
@@ -44,4 +47,21 @@ fn main() -> Result<()> {
     }
     Ok(())
 }
+```
+
+Do the same thing, using the multicall API.
+
+```rust
+use rtorrent_xmlrpc_bindings as rtorrent;
+use rtorrent::multicall::d;
+
+let handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
+d::MultiBuilder::new("default")
+    .call(d::NAME)
+    .call(d::IS_ACTIVE)
+    .invoke()?
+    .iter()
+    .for_each(|(name, active)| {
+        println!("{}: {}", name, if active { "active" } else { "inactive" });
+    });
 ```

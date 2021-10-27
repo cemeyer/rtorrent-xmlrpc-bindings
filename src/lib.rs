@@ -20,6 +20,29 @@ for download in my_handle.download_list()? {
 }
 ```
 
+It can be more efficient to query multiple items at a time.  Rtorrent's XMLRPC API exposes an
+interface for this called "multicalls."  In this crate, they are available through the
+[`multicall`] submodule.
+
+The following example queries the name and ratio of every torrent in rtorrent's "default" view and
+prints the results.
+
+```rust
+use rtorrent_xmlrpc_bindings as rtorrent;
+use rtorrent::multicall::d;
+
+let my_handle = rtorrent::Server::new("http://1.2.3.4/RPC2");
+
+d::MultiBuilder::new(&my_handle, "default")
+    .call(d::NAME)
+    .call(d::RATIO)
+    .invoke()?
+    .iter()
+    .for_each(|(name, ratio)| {
+        println!("{}: ratio: {}", name, ratio);
+    });
+```
+
 ## Current Limitations
 
 * Some XMLRPC APIs are not yet wrapped by this crate.
@@ -28,6 +51,7 @@ for download in my_handle.download_list()? {
 [XMLRPC API]: https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html
 
 [`Error`]: crate::Error
+[`multicall`]: crate::multicall
 [`Server`]: crate::Server
 !*/
 
