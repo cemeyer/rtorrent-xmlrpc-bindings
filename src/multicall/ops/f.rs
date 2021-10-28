@@ -66,5 +66,29 @@ macro_rules! f_op_const {
 }
 
 f_op_const!(
+    /// The number of completed chunks associated with this file (including chunks that only
+    /// partially include this file).
+    COMPLETED_CHUNKS, i64, "completed_chunks");
+f_op_const!(
+    /// Get the absolute path of this file.
+    FROZEN_PATH, String, "frozen_path");
+f_op_const!(
+    /// The offset (in bytes) of the file from the start of the torrent data.
+    OFFSET, i64, "offset");
+f_op_const!(
     /// Get the path of this file, relative to the download's base path.
     PATH, String, "path");
+f_op_const!(
+    /// The priority of the file.
+    ///
+    /// * `0`: Off. Do not download.
+    /// * `1`: Normal.
+    /// * `2`: High. Prioritize this file's chunks over "Normal" files.
+    PRIORITY, i64, "priority");
+f_op_const!(
+    /// Get the size of the file, in bytes.
+    SIZE_BYTES, i64, "size_bytes");
+f_op_const!(
+    /// The number of chunks associated with this file (including chunks that only partially
+    /// include this file).
+    SIZE_CHUNKS, i64, "size_chunks");

@@ -70,5 +70,56 @@ p_op_const!(
     /// Get the IP address of the peer.
     ADDRESS, String, "address");
 p_op_const!(
+    /// Is the peer banned, e.g., for sending "too much" corrupt data?
+    BANNED, bool, "banned");
+p_op_const!(
+    /// Get the parsed client version of the peer, if it is a client rtorrent recognizes.
+    /// Otherwise, `"Unknown"` is returned.
+    CLIENT_VERSION, String, "client_version");
+p_op_const!(
+    /// Return the percent of the download the peer reports it has completed.
+    COMPLETED_PERCENT, i64, "completed_percent");
+p_op_const!(
+    /// The download rate from this peer, in bytes/second.
+    DOWN_RATE, i64, "down_rate");
+p_op_const!(
+    /// Total bytes downloaded from this peer.
+    DOWN_TOTAL, i64, "down_total");
+p_op_const!(
     /// Get the (internal to rtorrent) identifier for this peer.
     ID, String, "id");
+p_op_const!(
+    /// Get the unparsed client ID sent by the peer.  Supposed to be URL-encoded.  This is what
+    /// the [`client_version`] method attempts to parse.  See BEP 20 for details.
+    ID_HTML, String, "id_html");
+p_op_const!(
+    /// Is the connection to this peer "encrypted?"
+    IS_ENCRYPTED, bool, "is_encrypted");
+p_op_const!(
+    /// Did the peer initiate this connection?
+    IS_INCOMING, bool, "is_incoming");
+p_op_const!(
+    /// Is this connection obfuscated?
+    IS_OBFUSCATED, bool, "is_obfuscated");
+p_op_const!(
+    IS_PREFERRED, bool, "is_preferred");
+p_op_const!(
+    IS_UNWANTED, bool, "is_unwanted");
+p_op_const!(
+    /// Get the (estimated) peer download rate (from the entire swarm, not just this client).
+    PEER_RATE, i64, "peer_rate");
+p_op_const!(
+    /// Get the (estimated) peer download total (from the entire swarm, not just this client).
+    PEER_TOTAL, i64, "peer_total");
+p_op_const!(
+    /// The remote port of the connection to this peer.
+    PORT, i64, "port");
+p_op_const!(
+    /// Is the peer snubbed?
+    SNUBBED, bool, "snubbed");
+p_op_const!(
+    /// The upload rate to this peer, in bytes/second.
+    UP_RATE, i64, "up_rate");
+p_op_const!(
+    /// Total bytes uploaded to this peer.
+    UP_TOTAL, i64, "up_total");
