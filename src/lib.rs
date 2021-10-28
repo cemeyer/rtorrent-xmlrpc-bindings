@@ -105,7 +105,7 @@ struct ServerInner {
     endpoint: String,
 }
 
-/// Represents a logical rtorrent instance.
+/// `Server` represents a logical rtorrent instance
 #[derive(Clone, Debug)]
 pub struct Server {
     inner: Arc<ServerInner>,

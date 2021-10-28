@@ -46,7 +46,7 @@ pub(crate) struct PeerInner {
     download: Download,
 }
 
-/// A peer associated with a [`Download`]
+/// A `Peer` associated with a [`Download`]
 ///
 /// Accessors on `Peer` correspond to the `p.*` rtorrent APIs.
 ///
@@ -129,6 +129,8 @@ impl Peer {
     p_str_getter!(
         /// Get the unparsed client ID sent by the peer.  Supposed to be URL-encoded.  This is what
         /// the [`client_version`] method attempts to parse.  See BEP 20 for details.
+        ///
+        /// [`client_version`]: crate::Peer::client_version
         id_html);
     p_bool_getter!(
         /// Is the connection to this peer "encrypted?"

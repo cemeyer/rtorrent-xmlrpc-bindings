@@ -2,8 +2,6 @@
 
 This module defines the [`MultiBuilder`] type, which is a tool for building queries of multiple
 fields across a single XMLRPC call.  The query results are nicely typed.
-
-[`MultiBuilder`]: crate::MultiBuilder
 !*/
 
 #![allow(dead_code)]

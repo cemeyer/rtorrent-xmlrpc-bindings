@@ -5,12 +5,14 @@ use std::borrow::Cow;
 use std::marker::PhantomData;
 
 super::op_type! {
-    /// An `f.*` operation for multicalls.
+    /// An `f.*` operation for multicalls
     FileMultiCallOp
 }
 
-/// The `MultiBuilder` type is a tool for building queries of one or more fields across many files
-/// in a single XMLRPC call.  The query results are nicely typed.
+/// `MultiBuilder` is a tool for building queries across many files
+///
+/// The constructed query is executed in a single XMLRPC call.  The query results are in convenient
+/// Rust types.
 ///
 /// ## Usage
 ///
@@ -40,11 +42,18 @@ pub struct MultiBuilder {
 }
 
 impl MultiBuilder {
-    /// Start building a multicall over files associated with a `download_sha1` (infohash) on
-    /// `server`.
+    /// Start building a multicall over files associated with a download on `server`.
     ///
-    /// The optional `glob` parameter can be used to filter the queried files using basic glob-like
-    /// syntax.
+    /// The download is identified by the SHA1 of its "infohash", `download_sha1`, which can be
+    /// obtained via [`Download::sha1_hex`] from some `Download` object, or the result of a
+    /// [`d::HASH`] call using [`multicall::d::MultiBuilder`].
+    ///
+    /// Optionally, the `glob` parameter may be used to filter the queried files using basic
+    /// glob-like syntax (e.g., `Some("*.iso")`).
+    ///
+    /// [`Download::sha1_hex`]: crate::Download::sha1_hex
+    /// [`d::HASH`]: crate::multicall::d::HASH
+    /// [`multicall::d::MultiBuilder`]: crate::multicall::d::MultiBuilder
     pub fn new(server: &Server, download_sha1: &str, glob: Option<&str>) -> Self {
         Self {
             inner: raw::MultiBuilder::new(server, "f.multicall", download_sha1, glob.unwrap_or("")),
@@ -53,8 +62,8 @@ impl MultiBuilder {
 }
 
 macro_rules! define_builder {
-    ( $prev: ident, $name: ident, $($phantoms:ident $ty:ident),* | $phantom_last:ident $ty_last:ident ) => {
-        ops::define_builder!(FileMultiCallOp, $prev, $name, $($phantoms $ty),* | $phantom_last $ty_last);
+    ( $(#[$meta:meta])* $prev: ident, $name: ident, $($phantoms:ident $ty:ident),* | $phantom_last:ident $ty_last:ident ) => {
+        ops::define_builder!($(#[$meta])* FileMultiCallOp, $prev, $name, $($phantoms $ty),* | $phantom_last $ty_last);
     }
 }
 pub(crate) use define_builder;

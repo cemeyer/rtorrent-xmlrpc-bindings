@@ -5,12 +5,14 @@ use std::borrow::Cow;
 use std::marker::PhantomData;
 
 super::op_type! {
-    /// A `p.*` operation for multicalls.
+    /// A `p.*` operation for multicalls
     PeerMultiCallOp
 }
 
-/// The `MultiBuilder` type is a tool for building queries of one or more fields across many peers
-/// in a single XMLRPC call.  The query results are nicely typed.
+/// `MultiBuilder` is a tool for building queries across many peers
+///
+/// The constructed query is executed in a single XMLRPC call.  The query results are in convenient
+/// Rust types.
 ///
 /// ## Usage
 ///
@@ -44,8 +46,15 @@ pub struct MultiBuilder {
 }
 
 impl MultiBuilder {
-    /// Start building a multicall over peers associated with a `download_sha1` (infohash) on
-    /// `server`.
+    /// Start building a multicall over peers associated with a download on `server`.
+    ///
+    /// The download is identified by the SHA1 of its "infohash", `download_sha1`, which can be
+    /// obtained via [`Download::sha1_hex`] from some `Download` object, or the result of a
+    /// [`d::HASH`] call using [`multicall::d::MultiBuilder`].
+    ///
+    /// [`Download::sha1_hex`]: crate::Download::sha1_hex
+    /// [`d::HASH`]: crate::multicall::d::HASH
+    /// [`multicall::d::MultiBuilder`]: crate::multicall::d::MultiBuilder
     pub fn new(server: &Server, download_sha1: &str) -> Self {
         Self {
             inner: raw::MultiBuilder::new(server, "p.multicall", download_sha1, ""),
@@ -54,8 +63,8 @@ impl MultiBuilder {
 }
 
 macro_rules! define_builder {
-    ( $prev: ident, $name: ident, $($phantoms:ident $ty:ident),* | $phantom_last:ident $ty_last:ident ) => {
-        ops::define_builder!(PeerMultiCallOp, $prev, $name, $($phantoms $ty),* | $phantom_last $ty_last);
+    ( $(#[$meta:meta])* $prev: ident, $name: ident, $($phantoms:ident $ty:ident),* | $phantom_last:ident $ty_last:ident ) => {
+        ops::define_builder!($(#[$meta])* PeerMultiCallOp, $prev, $name, $($phantoms $ty),* | $phantom_last $ty_last);
     }
 }
 pub(crate) use define_builder;
@@ -90,7 +99,9 @@ p_op_const!(
     ID, String, "id");
 p_op_const!(
     /// Get the unparsed client ID sent by the peer.  Supposed to be URL-encoded.  This is what
-    /// the [`client_version`] method attempts to parse.  See BEP 20 for details.
+    /// the [`client_version`] (`CLIENT_VERSION`) method attempts to parse.  See BEP 20 for details.
+    ///
+    /// [`client_version`]: crate::Peer::client_version
     ID_HTML, String, "id_html");
 p_op_const!(
     /// Is the connection to this peer "encrypted?"

@@ -32,25 +32,33 @@ use op_const;
 macro_rules! define_builder {
     // The pipe is an ugly kludge to allow us to list types left-to-right but avoid Rust macro
     // parsing ambiguity.
-    ( $optype: ident, $prev: ident, $name: ident, $($phantoms:ident $ty:ident),* | $phantom_last:ident $ty_last:ident ) => {
+    ( $(#[$meta:meta])* $optype: ident, $prev: ident, $name: ident, $($phantoms:ident $ty:ident),* | $phantom_last:ident $ty_last:ident ) => {
+        $(#[$meta])*
         pub struct $name<$($ty: TryFromValue,)* $ty_last: TryFromValue> {
             inner: raw::$name<$($ty,)* $ty_last>,
         }
 
         impl<$($ty: TryFromValue,)* $ty_last: TryFromValue> $name<$($ty,)* $ty_last> {
+            /// Run this query on the associated server and return the resulting data.
+            ///
+            /// On success, each entry in the resulting `Vec` represents a "row".  Each row
+            /// corresponds to a single target object.  Each value in the row's tuple represents a
+            /// "column", or result of some accessor against the same target object.  The resulting
+            /// column types correspond to MultiCallOp type parameters used during query
+            /// construction.
             pub fn invoke(&self) -> Result<Vec<($($ty,)* $ty_last,)>> {
                 self.inner.invoke()
             }
         }
 
         impl<$($ty: TryFromValue,)*> $prev<$($ty,)*> {
-            /// Add a column (an accessor for `getter`) to the query represented by this builder.
+            /// Return a new builder representing the result of adding a "column" to the query
+            /// represented by this builder.
             ///
-            /// `call()` can be invoked again, repeatedly, on the result of `call()` invocations,
-            /// to build queries with more columns.
+            /// The new "column" represents the result of the operation represented by `getter`.
             ///
-            /// (The higher-order builder types are invisible in Rustdoc because they are generated
-            /// by macros.)
+            /// `call()` can be invoked again, repeatedly, on the returned builder(s), to build
+            /// queries with more "columns".
             pub fn call<T: TryFromValue>(self, getter: $optype<T>) -> $name<$($ty,)* T> {
                 $name {
                     inner: self.inner.call::<T>(&getter.name)

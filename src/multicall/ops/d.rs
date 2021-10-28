@@ -5,12 +5,14 @@ use std::borrow::Cow;
 use std::marker::PhantomData;
 
 super::op_type! {
-    /// A `d.*` operation for multicalls.
+    /// A `d.*` operation for multicalls
     DownloadMultiCallOp
 }
 
-/// The `MultiBuilder` type is a tool for building queries of one or more fields across many
-/// downloads in a single XMLRPC call.  The query results are nicely typed.
+/// `MultiBuilder` is a tool for building queries across many downloads
+///
+/// The constructed query is executed in a single XMLRPC call.  The query results are in convenient
+/// Rust types.
 ///
 /// ## Usage
 ///
@@ -42,6 +44,19 @@ pub struct MultiBuilder {
 
 impl MultiBuilder {
     /// Start building a multicall over downloads in some specific `view` on `server`.
+    ///
+    /// Views usually include:
+    /// * "main"
+    /// * "default"
+    /// * "name"
+    /// * "active"
+    /// * "started"
+    /// * "stopped"
+    /// * "complete"
+    /// * "incomplete"
+    /// * "hashing"
+    /// * "seeding"
+    /// * "leeching"
     pub fn new(server: &Server, view: &str) -> Self {
         Self {
             inner: raw::MultiBuilder::new(server, "d.multicall2", "", view),
@@ -50,8 +65,8 @@ impl MultiBuilder {
 }
 
 macro_rules! define_builder {
-    ( $prev: ident, $name: ident, $($phantoms:ident $ty:ident),* | $phantom_last:ident $ty_last:ident ) => {
-        ops::define_builder!(DownloadMultiCallOp, $prev, $name, $($phantoms $ty),* | $phantom_last $ty_last);
+    ( $(#[$meta:meta])* $prev: ident, $name: ident, $($phantoms:ident $ty:ident),* | $phantom_last:ident $ty_last:ident ) => {
+        ops::define_builder!($(#[$meta])* DownloadMultiCallOp, $prev, $name, $($phantoms $ty),* | $phantom_last $ty_last);
     }
 }
 pub(crate) use define_builder;

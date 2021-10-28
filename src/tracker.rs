@@ -22,7 +22,7 @@ pub(crate) struct TrackerInner {
     index: i64,
 }
 
-/// `Tracker` - a tracker associated with a specific download
+/// A `Tracker` associated with a [`Download`]
 ///
 /// Accessors on `Tracker` correspond to the `t.*` rtorrent APIs.
 ///
