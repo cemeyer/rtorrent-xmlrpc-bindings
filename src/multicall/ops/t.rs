@@ -55,7 +55,7 @@ impl MultiBuilder {
     /// [`multicall::d::MultiBuilder`]: crate::multicall::d::MultiBuilder
     pub fn new(server: &Server, download_sha1: &str) -> Self {
         Self {
-            inner: raw::MultiBuilder::new(server, "p.multicall", download_sha1, ""),
+            inner: raw::MultiBuilder::new(server, "t.multicall", download_sha1, ""),
         }
     }
 }
