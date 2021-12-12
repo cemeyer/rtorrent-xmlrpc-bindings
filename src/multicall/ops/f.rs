@@ -70,7 +70,7 @@ pub(crate) use define_builder;
 
 macro_rules! f_op_const {
     ( $(#[$meta:meta])* $name: ident, $res: ty, $api: literal ) => {
-        super::op_const!( $(#[$meta])* FileMultiCallOp, $name, $res, "p.", $api);
+        super::op_const!( $(#[$meta])* FileMultiCallOp, $name, $res, "f.", $api);
     };
 }
 
