@@ -89,6 +89,28 @@ impl From<xmlrpc::Error> for Error {
     }
 }
 
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Error::XmlRpc(xe) => {
+                write!(f, "XML-RPC: {}", xe)
+            }
+            Error::UnexpectedStructure(us) => {
+                write!(f, "Unexpected XML structure: {}", us)
+            }
+        }
+    }
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Error::XmlRpc(xe) => Some(xe),
+            _ => None,
+        }
+    }
+}
+
 macro_rules! server_getter {
     ($(#[$meta:meta])* $method: ident, $api: literal, $ty: ty) => {
         $(#[$meta])*
