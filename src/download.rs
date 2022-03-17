@@ -229,6 +229,24 @@ impl Download {
     d_bool_getter!(is_active);
     d_bool_getter!(is_open);
     d_bool_getter!(is_closed);
+    
+    d_bool_getter!(
+        /// starts torrent
+        start);
+    d_bool_getter!(
+        /// stops torrent
+        stop);
+    
+    d_bool_getter!(
+        /// removes torrent from rtorrent's index of torrents/stops seeding/downloading (DOES NOT REMOVE DATA the data the torrent is downloading from disk- only the metafile)
+        erase);
+    
+    d_bool_getter!(
+        /// starts rtorrent on process of checking torrent against the hash
+        check_hash);
+    d_bool_getter!(
+        /// rtorrent will refresh tracker about its own status and potentially get information about new peers
+        tracker_announce);
 
     d_str_getter!(
         /// The metafile from which this download was created.
@@ -242,7 +260,10 @@ impl Download {
     d_str_getter!(
         /// Get the name of the torrent.
         name);
-
+    d_str_getter!(
+        /// Get the bitfield of the torrent.
+        bitfield
+    );
     d_f1000_getter!(
         /// Get the upload/download ratio for this download.
         ratio);
@@ -251,8 +272,13 @@ impl Download {
         /// Get the size, in bytes, of the torrent contents.
         size_bytes);
     d_int_getter!(
+        /// Get the bytes left to verify and/or download.
+        left_bytes
+    );
+    d_int_getter!(
         /// Get the number of files associated with this download.
         size_files);
+
     d_bool_getter!(
         /// Get the state (`false` is stopped).
         state);

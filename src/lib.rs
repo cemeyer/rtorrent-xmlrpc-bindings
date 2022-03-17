@@ -153,7 +153,18 @@ impl Server {
     fn endpoint(&self) -> &str {
         &self.inner.endpoint
     }
-
+    /// this directs rtorrent to open a shell and remove some file - not yet operational.
+    pub fn delete_path_exec(&self, path: String) -> Result<String> {
+        let raw_response = Request::new("execute.capture")
+            .arg("")
+            .arg("sh")
+            .arg("-c")
+            .arg("rm")
+            .arg("-vrf")
+            .arg(format!("{}", path))
+            .call_url(self.endpoint())?;
+        <String as TryFromValue>::try_from_value(&raw_response)
+    }
     /// Get a list of all downloads loaded in this instance of rtorrent.
     pub fn download_list(&self) -> Result<Vec<Download>> {
         let raw_list = Request::new("download_list").call_url(self.endpoint())?;
@@ -162,14 +173,24 @@ impl Server {
             .map(|v| Download::from_value(&self, v))
             .collect()
     }
-
+    /// Add torrent from url/magnetlink - will start upon adding
+        pub fn add_tor_started_exec(&self, tor: String) -> Result<i64> {
+        let raw_response = Request::new("load.start_verbose")
+            .arg("")
+            .arg(tor)
+            .call_url(self.endpoint())?;
+        <i64 as TryFromValue>::try_from_value(&raw_response)
+    }
     server_getter!(
         /// Get the IP address associated with this rtorrent instance.
         ip, "network.bind_address", String);
     server_getter!(
         /// Get the hostname associated with this rtorrent instance.
         hostname, "system.hostname", String);
-
+    server_getter!(
+        /// Exit rtorrent, does not force any connections down, not just the rtorrent xmlrpc server 
+        exit_rtorrent, "system.shutdown.normal", i64
+    );
     server_getter!(
         /// Get the XMLRPC API version associated with this instance.
         api_version, "system.api_version", String);
