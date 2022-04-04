@@ -31,7 +31,7 @@ mod raw {
     raw_impl::define_builder!(MultiBuilder1, MultiBuilder2, phantom_a A | phantom_b B);
     raw_impl::define_builder!(MultiBuilder2, MultiBuilder3, phantom_a A, phantom_b B | phantom_c C);
     raw_impl::define_builder!(MultiBuilder3, MultiBuilder4, phantom_a A, phantom_b B, phantom_c C | phantom_d D);
-        raw_impl::define_builder!(MultiBuilder4, MultiBuilder5, phantom_a A, phantom_b B, phantom_c C , phantom_d D | phantom_e E);
+    raw_impl::define_builder!(MultiBuilder4, MultiBuilder5, phantom_a A, phantom_b B, phantom_c C , phantom_d D | phantom_e E);
     raw_impl::define_builder!(MultiBuilder5, MultiBuilder6, phantom_a A, phantom_b B, phantom_c C , phantom_d D , phantom_e E | phantom_g G);
     raw_impl::define_builder!(MultiBuilder6, MultiBuilder7, phantom_a A, phantom_b B, phantom_c C , phantom_d D , phantom_e E, phantom_g G | phantom_h H);
     raw_impl::define_builder!(MultiBuilder7, MultiBuilder8, phantom_a A, phantom_b B, phantom_c C , phantom_d D , phantom_e E, phantom_g G , phantom_h H | phantom_i I);
@@ -82,7 +82,7 @@ pub mod d {
     define_builder!(
         /// `MultiBuilder4` represents a four-column query over all `Download`s in a view
         MultiBuilder3, MultiBuilder4, phantom_a A, phantom_b B, phantom_c C | phantom_d D);
-        define_builder!(
+    define_builder!(
         /// `MultiBuilder5` represents a four-column query over all `Download`s in a view
         MultiBuilder4, MultiBuilder5, phantom_a A, phantom_b B, phantom_c C , phantom_d D | phantom_e E);
     define_builder!(

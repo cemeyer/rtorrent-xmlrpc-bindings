@@ -148,22 +148,23 @@ impl Server {
     pub fn new(endpoint: &str) -> Self {
         Self { inner: Arc::new(ServerInner { endpoint: endpoint.to_owned() }) }
     }
-
+    pub fn get_endpoint(&self) -> String {
+        self.inner.endpoint.clone()
+    }
     #[inline]
     fn endpoint(&self) -> &str {
         &self.inner.endpoint
     }
-    /// this directs rtorrent to open a shell and remove some file - not yet operational.
-    pub fn delete_path_exec(&self, path: String) -> Result<String> {
-        let raw_response = Request::new("execute.capture")
+
+    /// Rrtorrent to open a shell and remove path.
+    pub fn delete_path_exec(&self, path: String) -> Result<i64> {
+        let raw_response = Request::new("execute.throw.bg")
             .arg("")
             .arg("sh")
             .arg("-c")
-            .arg("rm")
-            .arg("-vrf")
-            .arg(format!("{}", path))
+            .arg(format!("rm -vrf {}",path))
             .call_url(self.endpoint())?;
-        <String as TryFromValue>::try_from_value(&raw_response)
+        <i64 as TryFromValue>::try_from_value(&raw_response)
     }
     /// Get a list of all downloads loaded in this instance of rtorrent.
     pub fn download_list(&self) -> Result<Vec<Download>> {
@@ -173,9 +174,33 @@ impl Server {
             .map(|v| Download::from_value(&self, v))
             .collect()
     }
-    /// Add torrent from url/magnetlink - will start upon adding
-        pub fn add_tor_started_exec(&self, tor: String) -> Result<i64> {
+    /// Add torrent from url/magnetlink - will start upon adding.
+    pub fn add_tor_started(&self, tor: String) -> Result<i64> {
         let raw_response = Request::new("load.start_verbose")
+            .arg("")
+            .arg(tor)
+            .call_url(self.endpoint())?;
+        <i64 as TryFromValue>::try_from_value(&raw_response)
+    }
+    /// Add torrent from url/magnetlink - will not start upon adding
+    pub fn add_tor_paused(&self, tor: String) -> Result<i64> {
+        let raw_response = Request::new("load.verbose")
+            .arg("")
+            .arg(tor)
+            .call_url(self.endpoint())?;
+        <i64 as TryFromValue>::try_from_value(&raw_response)
+    }
+    /// Takes a vec of bytes of a torrent/metafile and passes that to rtorrent to be added, but not started.
+    pub fn add_tor_from_vec_u8_paused(&self, tor: Vec<u8>) -> Result<i64> {
+        let raw_response = Request::new("load.raw_verbose")
+            .arg("")
+            .arg(tor)
+            .call_url(self.endpoint())?;
+        <i64 as TryFromValue>::try_from_value(&raw_response)
+    }
+    /// Takes a vec of bytes of a torrent/metafile and passes that to rtorrent to be added & started.
+    pub fn add_tor_from_vec_u8_started(&self, tor: Vec<u8>) -> Result<i64> {
+        let raw_response = Request::new("load.raw_start_verbose")
             .arg("")
             .arg(tor)
             .call_url(self.endpoint())?;
@@ -185,8 +210,14 @@ impl Server {
         /// Get the IP address associated with this rtorrent instance.
         ip, "network.bind_address", String);
     server_getter!(
+        /// Get the port(s) associated with this rtorrent instance.
+        port, "network.port_range", String);
+    server_getter!(
         /// Get the hostname associated with this rtorrent instance.
         hostname, "system.hostname", String);
+    server_getter!(
+        /// Get the time in seconds since Unix Epoch when this rtorrent instance was started.
+        startup_time, "system.startup_time", i64);
     server_getter!(
         /// Exit rtorrent, does not force any connections down, not just the rtorrent xmlrpc server 
         exit_rtorrent, "system.shutdown.normal", i64

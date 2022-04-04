@@ -83,6 +83,9 @@ pub struct File {
 }
 
 impl File {
+    pub fn from_id(download: Download, index: i64) -> Self {
+        Self { inner: Arc::new(FileInner { download, index, }) }
+    }
     pub(crate) fn new(download: Download, index: i64) -> Self {
         Self { inner: Arc::new(FileInner { download, index, }) }
     }
