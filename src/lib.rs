@@ -163,6 +163,38 @@ impl Server {
             .collect()
     }
 
+    /// Add torrent from url/magnetlink.
+    ///
+    /// If start is true, also start the added download.
+    pub fn load_torrent_url(&self, link: &str, start: bool) -> Result<i64> {
+        let load = if start {
+            "load.start_verbose"
+        } else {
+            "load.verbose"
+        };
+        let raw_response = Request::new(load)
+            .arg("")
+            .arg(link.to_string())
+            .call_url(self.endpoint())?;
+        <i64 as TryFromValue>::try_from_value(&raw_response)
+    }
+
+    /// Add torrent from torrent file contents.
+    ///
+    /// If start is true, also start the added download.
+    pub fn load_torrent_bytes(&self, contents: &[u8], start: bool) -> Result<i64> {
+        let load = if start {
+            "load.raw_start_verbose"
+        } else {
+            "load.raw_verbose"
+        };
+        let raw_response = Request::new(load)
+            .arg("")
+            .arg(contents.to_vec())
+            .call_url(self.endpoint())?;
+        <i64 as TryFromValue>::try_from_value(&raw_response)
+    }
+
     server_getter!(
         /// Get the IP address associated with this rtorrent instance.
         ip, "network.bind_address", String);
