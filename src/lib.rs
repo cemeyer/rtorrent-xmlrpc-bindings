@@ -167,9 +167,18 @@ impl Server {
         /// Get the IP address associated with this rtorrent instance.
         ip, "network.bind_address", String);
     server_getter!(
+        /// Get the port(s) associated with this rtorrent instance.
+        port, "network.port_range", String);
+    server_getter!(
         /// Get the hostname associated with this rtorrent instance.
         hostname, "system.hostname", String);
-
+    server_getter!(
+        /// Get the time in seconds since Unix Epoch when this rtorrent instance was started.
+        startup_time, "system.startup_time", i64);
+    server_getter!(
+        /// Exit rtorrent, informing trackers that we are going away and waiting some time for them
+        /// to acknowledge.
+        exit_rtorrent, "system.shutdown.normal", i64);
     server_getter!(
         /// Get the XMLRPC API version associated with this instance.
         api_version, "system.api_version", String);

@@ -23,6 +23,12 @@ macro_rules! d_str_getter {
     }
 }
 
+macro_rules! d_str_getter_named {
+    ($(#[$meta:meta])* $method: ident, $apimethod: literal) => {
+        prim_getter_named!($(#[$meta])* "d.", $method, String, $apimethod);
+    }
+}
+
 macro_rules! d_bool_getter {
     ($(#[$meta:meta])* $method: ident) => {
         d_getter!($(#[$meta])* $method, bool);
@@ -50,6 +56,12 @@ macro_rules! d_int_getter_named {
 macro_rules! d_str_setter {
     ($(#[$meta:meta])* $rmethod: ident, $apimethod: ident) => {
         prim_setter!($(#[$meta])* "d.", $rmethod, $apimethod, &str);
+    }
+}
+
+macro_rules! d_int_setter {
+    ($(#[$meta:meta])* $rmethod: ident, $apimethod: ident) => {
+        prim_setter!($(#[$meta])* "d.", $rmethod, $apimethod, i64);
     }
 }
 
@@ -230,6 +242,25 @@ impl Download {
     d_bool_getter!(is_open);
     d_bool_getter!(is_closed);
 
+    d_bool_getter!(
+        /// Starts the download.
+        start);
+    d_bool_getter!(
+        /// Stops the download.
+        stop);
+    d_bool_getter!(
+        /// Removes download from rtorrent's index of torrents, including associated session files.
+        /// The data stored for the item is not touched.
+        erase);
+
+    d_bool_getter!(
+        /// Cause the download to be hash checked.  The download is paused during hashing.
+        check_hash);
+    d_bool_getter!(
+        /// Trigger a tracker announce (notify tracker of local status and potentially get
+        /// information about new peers).
+        tracker_announce);
+
     d_str_getter!(
         /// The metafile from which this download was created.
         loaded_file);
@@ -242,14 +273,23 @@ impl Download {
     d_str_getter!(
         /// Get the name of the torrent.
         name);
-
+    d_str_getter!(
+        /// Get the bitfield of the torrent.  The bitfield is a string of hex digits representing
+        /// completeness.
+        bitfield);
     d_f1000_getter!(
         /// Get the upload/download ratio for this download.
         ratio);
-
+    d_int_setter!(
+        /// Control the priority of the download.  Possible values are: 0, off; 1, low; 2, normal;
+        /// and 3, high.
+        priority_set, priority);
     d_int_getter!(
         /// Get the size, in bytes, of the torrent contents.
         size_bytes);
+    d_int_getter!(
+        /// Get the bytes left to verify and/or download.
+        left_bytes);
     d_int_getter!(
         /// Get the number of files associated with this download.
         size_files);
@@ -271,6 +311,17 @@ impl Download {
     d_int_getter_named!(
         /// Get the upload total (bytes).
         up_total, "up.total");
+    d_str_getter_named!(
+        /// Get the group of a download.
+        group_name, "group.name");
+    d_int_getter!(
+        /// Get the 'creation date' field of a download (as a timestamp).
+        creation_date);
+    d_int_getter!(
+        /// Get timestamp the torrent was loaded (or rtorrent was restarted, whichever is more
+        /// recent).
+        load_date);
+
 }
 
 unsafe impl Send for Download {}
