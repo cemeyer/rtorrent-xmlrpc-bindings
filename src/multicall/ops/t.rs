@@ -76,3 +76,22 @@ macro_rules! t_op_const {
 t_op_const!(
     /// Get the URL of the tracker.
     URL, String, "url");
+
+t_op_const!(
+    // Get the last time rtorrent attempted to contact tracker.
+    ACTIVTY_TIME_LAST, i64, "activity_time_last");
+
+t_op_const!(
+    // Get the next time rtorrent will attempt to contact tracker.
+    ACTIVTY_TIME_NEXT, i64, "activity_time_next");
+    
+t_op_const!(
+    // Get the next time rtorrent will attempt to contact tracker.
+    GROUP, i64, "group");
+t_op_const!(
+    // Get the tracker ID.
+    ID, String, "id");
+
+t_op_const!(
+    // Get the number of peers the tracker returned last scrape.
+    LATEST_SUM_PEERS, i64, "latest_sum_peers");

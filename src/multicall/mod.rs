@@ -31,6 +31,11 @@ mod raw {
     raw_impl::define_builder!(MultiBuilder1, MultiBuilder2, phantom_a A | phantom_b B);
     raw_impl::define_builder!(MultiBuilder2, MultiBuilder3, phantom_a A, phantom_b B | phantom_c C);
     raw_impl::define_builder!(MultiBuilder3, MultiBuilder4, phantom_a A, phantom_b B, phantom_c C | phantom_d D);
+    raw_impl::define_builder!(MultiBuilder4, MultiBuilder5, phantom_a A, phantom_b B, phantom_c C , phantom_d D | phantom_e E);
+    raw_impl::define_builder!(MultiBuilder5, MultiBuilder6, phantom_a A, phantom_b B, phantom_c C , phantom_d D , phantom_e E | phantom_g G);
+    raw_impl::define_builder!(MultiBuilder6, MultiBuilder7, phantom_a A, phantom_b B, phantom_c C , phantom_d D , phantom_e E, phantom_g G | phantom_h H);
+    raw_impl::define_builder!(MultiBuilder7, MultiBuilder8, phantom_a A, phantom_b B, phantom_c C , phantom_d D , phantom_e E, phantom_g G , phantom_h H | phantom_i I);
+    raw_impl::define_builder!(MultiBuilder8, MultiBuilder9, phantom_a A, phantom_b B, phantom_c C , phantom_d D , phantom_e E, phantom_g G , phantom_h H , phantom_i I | phantom_j J);
 }
 
 /// The `d` module builds multicalls over `Download`s
@@ -77,6 +82,21 @@ pub mod d {
     define_builder!(
         /// `MultiBuilder4` represents a four-column query over all `Download`s in a view
         MultiBuilder3, MultiBuilder4, phantom_a A, phantom_b B, phantom_c C | phantom_d D);
+    define_builder!(
+        /// `MultiBuilder5` represents a four-column query over all `Download`s in a view
+        MultiBuilder4, MultiBuilder5, phantom_a A, phantom_b B, phantom_c C , phantom_d D | phantom_e E);
+    define_builder!(
+        /// `MultiBuilder6` represents a four-column query over all `Download`s in a view
+        MultiBuilder5, MultiBuilder6, phantom_a A, phantom_b B, phantom_c C , phantom_d D, phantom_e E | phantom_g G);
+    define_builder!(
+        /// `MultiBuilder7` represents a four-column query over all `Download`s in a view
+        MultiBuilder6, MultiBuilder7, phantom_a A, phantom_b B, phantom_c C , phantom_d D, phantom_e E, phantom_g G | phantom_h H);
+    define_builder!(
+        /// `MultiBuilder8` represents a four-column query over all `Download`s in a view
+        MultiBuilder7, MultiBuilder8, phantom_a A, phantom_b B, phantom_c C , phantom_d D, phantom_e E, phantom_g G , phantom_h H | phantom_i I);
+    define_builder!(
+        /// `MultiBuilder9` represents a four-column query over all `Download`s in a view
+        MultiBuilder8, MultiBuilder9, phantom_a A, phantom_b B, phantom_c C , phantom_d D, phantom_e E, phantom_g G , phantom_h H , phantom_i I | phantom_j J);
 }
 
 /// The `f` module builds multicalls over `File`s in a `Download`
@@ -123,6 +143,9 @@ pub mod f {
     define_builder!(
         /// `MultiBuilder4` represents a four-column query over all `File`s in a `Download`
         MultiBuilder3, MultiBuilder4, phantom_a A, phantom_b B, phantom_c C | phantom_d D);
+    define_builder!(
+        /// `MultiBuilder5` represents a four-column query over all `File`s in a `Download`
+        MultiBuilder4, MultiBuilder5, phantom_a A, phantom_b B, phantom_c C , phantom_d D | phantom_e E);
 }
 
 /// The `p` module builds multicalls over `Peer`s on a `Download`
@@ -176,6 +199,15 @@ pub mod p {
         /// `MultiBuilder4` represents a four-column query over all swarm `Peers` associated with a
         /// `Download`
         MultiBuilder3, MultiBuilder4, phantom_a A, phantom_b B, phantom_c C | phantom_d D);
+    define_builder!(
+        /// `MultiBuilder5` represents a four-column query over all swarm `Peers` associated with a
+        /// `Download`
+        MultiBuilder4, MultiBuilder5, phantom_a A, phantom_b B, phantom_c C , phantom_d D | phantom_e E);
+    define_builder!(
+        /// `MultiBuilder6` represents a four-column query over all swarm `Peers` associated with a
+        /// `Download`
+        MultiBuilder5, MultiBuilder6, phantom_a A, phantom_b B, phantom_c C , phantom_d D, phantom_e E | phantom_f F);
+
 }
 
 /// The `t` module builds multicalls over `Trackers`s associated with a `Download`

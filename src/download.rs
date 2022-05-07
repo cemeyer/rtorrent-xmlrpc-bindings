@@ -46,10 +46,19 @@ macro_rules! d_int_getter_named {
         prim_getter_named!($(#[$meta])* "d.", $method, i64, $apimethod);
     }
 }
-
+macro_rules! d_str_getter_named {
+    ($(#[$meta:meta])* $method: ident, $apimethod: literal) => {
+        prim_getter_named!($(#[$meta])* "d.", $method, String, $apimethod);
+    }
+}
 macro_rules! d_str_setter {
     ($(#[$meta:meta])* $rmethod: ident, $apimethod: ident) => {
         prim_setter!($(#[$meta])* "d.", $rmethod, $apimethod, &str);
+    }
+}
+macro_rules! d_int_setter {
+    ($(#[$meta:meta])* $rmethod: ident, $apimethod: ident) => {
+        prim_setter!($(#[$meta])* "d.", $rmethod, $apimethod, i64);
     }
 }
 
@@ -229,6 +238,24 @@ impl Download {
     d_bool_getter!(is_active);
     d_bool_getter!(is_open);
     d_bool_getter!(is_closed);
+    
+    d_bool_getter!(
+        /// Starts torrent
+        start);
+    d_bool_getter!(
+        /// Stops torrent
+        stop);
+    
+    d_bool_getter!(
+        /// Removes torrent from rtorrent's index of torrents, removes only the metafile if configured on rtorrent.
+        erase);
+    
+    d_bool_getter!(
+        /// Checking torrent against the hash.
+        check_hash);
+    d_bool_getter!(
+        /// Re-announce tracker about its own status and potentially get information about new peers.
+        tracker_announce);
 
     d_str_getter!(
         /// The metafile from which this download was created.
@@ -242,17 +269,26 @@ impl Download {
     d_str_getter!(
         /// Get the name of the torrent.
         name);
-
+    d_str_getter!(
+        /// Get the bitfield of the torrent.
+        bitfield
+    );
     d_f1000_getter!(
         /// Get the upload/download ratio for this download.
         ratio);
-
+    d_int_setter!(
+        priority_set, priority);
     d_int_getter!(
         /// Get the size, in bytes, of the torrent contents.
         size_bytes);
     d_int_getter!(
+        /// Get the bytes left to verify and/or download.
+        left_bytes
+    );
+    d_int_getter!(
         /// Get the number of files associated with this download.
         size_files);
+
     d_bool_getter!(
         /// Get the state (`false` is stopped).
         state);
@@ -271,6 +307,16 @@ impl Download {
     d_int_getter_named!(
         /// Get the upload total (bytes).
         up_total, "up.total");
+    d_str_getter_named!(
+        /// Get the group of  torrent.
+        group_name, "group.name");
+    d_int_getter!(
+        // Get creation date of torrent.
+        creation_date);
+    d_int_getter!(
+        // Get date torrent was loaded.
+        load_date);
+
 }
 
 unsafe impl Send for Download {}
