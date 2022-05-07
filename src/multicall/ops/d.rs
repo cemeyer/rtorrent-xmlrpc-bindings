@@ -101,6 +101,9 @@ d_op_const!(
     /// The number of completed bytes.
     COMPLETED_BYTES, i64, "completed_bytes");
 d_op_const!(
+    /// The number of bytes that have yet to be downloaded.
+    LEFT_BYTES, i64, "left_bytes");
+d_op_const!(
     /// The number of completed chunks (pieces).
     COMPLETED_CHUNKS, i64, "completed_chunks");
 d_op_const!(
@@ -112,6 +115,9 @@ d_op_const!(
 d_op_const!(
     /// Is this torrent active?
     IS_ACTIVE, bool, "is_active");
+d_op_const!(
+    /// Is the download currently hash-checking?
+    IS_HASH_CHECKING, bool, "is_hash_checking");
 d_op_const!(
     IS_OPEN, bool, "is_open");
 d_op_const!(

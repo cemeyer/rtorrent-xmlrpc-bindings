@@ -76,3 +76,20 @@ macro_rules! t_op_const {
 t_op_const!(
     /// Get the URL of the tracker.
     URL, String, "url");
+t_op_const!(
+    /// Get the last time rtorrent attempted to contact this tracker, regardless of whether the
+    /// attempt succeeded.  The value is in seconds since Unix epoch.
+    ACTIVTY_TIME_LAST, i64, "activity_time_last");
+t_op_const!(
+    /// Get the next time rtorrent will attempt to contact tracker.  The value is in seconds since
+    /// Unix epoch.
+    ACTIVTY_TIME_NEXT, i64, "activity_time_next");
+t_op_const!(
+    /// Get the BEP 12 group id.  Up to 32 groups are supported, starting from zero.
+    GROUP, i64, "group");
+t_op_const!(
+    /// Get the tracker ID (from HTTP 'tracker id' key).
+    ID, String, "id");
+t_op_const!(
+    /// Get the total number of peers as of the most recent tracker announce.
+    LATEST_SUM_PEERS, i64, "latest_sum_peers");
