@@ -60,12 +60,12 @@ d::MultiBuilder::new(&my_handle, "default")
 use std::sync::Arc;
 use xmlrpc::{Request, Value};
 
-pub(crate) mod value_conversion;
 mod download;
 mod file;
 pub mod multicall;
 mod peer;
 mod tracker;
+pub(crate) mod value_conversion;
 
 pub use download::Download;
 pub use file::File;
@@ -146,7 +146,11 @@ impl Server {
     /// # Ok::<(), rtorrent::Error>(())
     /// ```
     pub fn new(endpoint: &str) -> Self {
-        Self { inner: Arc::new(ServerInner { endpoint: endpoint.to_owned() }) }
+        Self {
+            inner: Arc::new(ServerInner {
+                endpoint: endpoint.to_owned(),
+            }),
+        }
     }
 
     #[inline]
@@ -197,42 +201,78 @@ impl Server {
 
     server_getter!(
         /// Get the IP address associated with this rtorrent instance.
-        ip, "network.bind_address", String);
+        ip,
+        "network.bind_address",
+        String
+    );
     server_getter!(
         /// Get the port(s) associated with this rtorrent instance.
-        port, "network.port_range", String);
+        port,
+        "network.port_range",
+        String
+    );
     server_getter!(
         /// Get the hostname associated with this rtorrent instance.
-        hostname, "system.hostname", String);
+        hostname,
+        "system.hostname",
+        String
+    );
     server_getter!(
         /// Get the time in seconds since Unix Epoch when this rtorrent instance was started.
-        startup_time, "system.startup_time", i64);
+        startup_time,
+        "system.startup_time",
+        i64
+    );
     server_getter!(
         /// Exit rtorrent, informing trackers that we are going away and waiting some time for them
         /// to acknowledge.
-        exit_rtorrent, "system.shutdown.normal", i64);
+        exit_rtorrent,
+        "system.shutdown.normal",
+        i64
+    );
     server_getter!(
         /// Get the XMLRPC API version associated with this instance.
-        api_version, "system.api_version", String);
+        api_version,
+        "system.api_version",
+        String
+    );
     server_getter!(
         /// Get the rtorrent version associated with this instance.
-        client_version, "system.client_version", String);
+        client_version,
+        "system.client_version",
+        String
+    );
     server_getter!(
         /// Get the libtorrent version associated with this instance.
-        library_version, "system.library_version", String);
+        library_version,
+        "system.library_version",
+        String
+    );
 
     server_getter!(
         /// Get the total downloaded metric for this instance (bytes).
-        down_total, "throttle.global_down.total", i64);
+        down_total,
+        "throttle.global_down.total",
+        i64
+    );
     server_getter!(
         /// Get the current download rate for this instance (bytes/s).
-        down_rate, "throttle.global_down.rate", i64);
+        down_rate,
+        "throttle.global_down.rate",
+        i64
+    );
     server_getter!(
         /// Get the total uploaded metric for this instance (bytes).
-        up_total, "throttle.global_up.total", i64);
+        up_total,
+        "throttle.global_up.total",
+        i64
+    );
     server_getter!(
         /// Get the current upload rate for this instance (bytes/s).
-        up_rate, "throttle.global_up.rate", i64);
+        up_rate,
+        "throttle.global_up.rate",
+        i64
+    );
 }
 
 unsafe impl Send for Server {}

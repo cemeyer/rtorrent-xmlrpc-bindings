@@ -84,7 +84,9 @@ pub struct File {
 
 impl File {
     pub(crate) fn new(download: Download, index: i64) -> Self {
-        Self { inner: Arc::new(FileInner { download, index, }) }
+        Self {
+            inner: Arc::new(FileInner { download, index }),
+        }
     }
 
     #[inline]
@@ -95,16 +97,20 @@ impl File {
     f_int_getter!(
         /// The number of completed chunks associated with this file (including chunks that only
         /// partially include this file).
-        completed_chunks);
+        completed_chunks
+    );
     f_str_getter!(
         /// Get the absolute path of this file.
-        frozen_path);
+        frozen_path
+    );
     f_int_getter!(
         /// The offset (in bytes) of the file from the start of the torrent data.
-        offset);
+        offset
+    );
     f_str_getter!(
         /// Get the path of this file, relative to the download's base path.
-        path);
+        path
+    );
 
     f_int_getter!(
         /// The priority of the file.
@@ -112,19 +118,24 @@ impl File {
         /// * `0`: Off. Do not download.
         /// * `1`: Normal.
         /// * `2`: High. Prioritize this file's chunks over "Normal" files.
-        priority);
+        priority
+    );
     f_int_setter!(
         /// Set the priority of the file.  See [`File::priority`].
-        set_priority, priority);
+        set_priority,
+        priority
+    );
 
     f_int_getter!(
         /// Get the size of the file, in bytes.
-        size_bytes);
+        size_bytes
+    );
 
     f_int_getter!(
         /// The number of chunks associated with this file (including chunks that only partially
         /// include this file).
-        size_chunks);
+        size_chunks
+    );
 }
 
 unsafe impl Send for File {}
@@ -132,6 +143,10 @@ unsafe impl Sync for File {}
 
 impl From<&File> for Value {
     fn from(file: &File) -> Self {
-        Value::String(format!("{}:f{}", &file.inner.download.sha1_hex(), file.inner.index))
+        Value::String(format!(
+            "{}:f{}",
+            &file.inner.download.sha1_hex(),
+            file.inner.index
+        ))
     }
 }

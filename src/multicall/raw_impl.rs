@@ -43,8 +43,7 @@ impl MultiBuilderInternal {
     }
 
     pub(crate) fn invoke(&self) -> Result<Vec<Value>> {
-        let list = self.as_request()
-            .call_url(self.server.endpoint())?;
+        let list = self.as_request().call_url(self.server.endpoint())?;
         Ok(value_conversion::list(&list)?.clone())
     }
 }
@@ -89,12 +88,19 @@ impl MultiBuilder {
     /// `call_filter` behavior varies according to the specific `multicall` operation.  Usually the
     /// empty string is equivalent to unfiltered.  For `d.*` queries, the filter corresponds to
     /// some rtorrent "view."
-    pub(crate) fn new(server: &Server, multicall: &str, call_target: &str, call_filter: &str) -> Self {
+    pub(crate) fn new(
+        server: &Server,
+        multicall: &str,
+        call_target: &str,
+        call_filter: &str,
+    ) -> Self {
         Self {
-            inner: MultiBuilderInternal::new(server,
-                                             multicall,
-                                             call_target.into(),
-                                             call_filter.into()),
+            inner: MultiBuilderInternal::new(
+                server,
+                multicall,
+                call_target.into(),
+                call_filter.into(),
+            ),
         }
     }
 }

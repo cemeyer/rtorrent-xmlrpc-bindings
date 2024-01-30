@@ -96,7 +96,12 @@ pub struct Peer {
 
 impl Peer {
     pub(crate) fn new(download: Download, peerhash: &str) -> Self {
-        Self { inner: Arc::new(PeerInner { download, peer_sha1_hex: peerhash.to_owned(), }) }
+        Self {
+            inner: Arc::new(PeerInner {
+                download,
+                peer_sha1_hex: peerhash.to_owned(),
+            }),
+        }
     }
 
     #[inline]
@@ -106,64 +111,84 @@ impl Peer {
 
     p_str_getter!(
         /// Get the IP address of the peer.
-        address);
+        address
+    );
     p_bool_getter!(
         /// Is the peer banned, e.g., for sending "too much" corrupt data?
-        banned);
+        banned
+    );
     p_bool_setter!(
         /// Ban the peer.
-        set_banned, banned);
+        set_banned,
+        banned
+    );
     p_str_getter!(
         /// Get the parsed client version of the peer, if it is a client rtorrent recognizes.
         /// Otherwise, `"Unknown"` is returned.
-        client_version);
+        client_version
+    );
     p_int_getter!(
         /// Return the percent of the download the peer reports it has completed.
-        completed_percent);
+        completed_percent
+    );
     p_int_getter!(
         /// The download rate from this peer, in bytes/second.
-        down_rate);
+        down_rate
+    );
     p_int_getter!(
         /// Total bytes downloaded from this peer.
-        down_total);
+        down_total
+    );
     p_str_getter!(
         /// Get the unparsed client ID sent by the peer.  Supposed to be URL-encoded.  This is what
         /// the [`client_version`] method attempts to parse.  See BEP 20 for details.
         ///
         /// [`client_version`]: crate::Peer::client_version
-        id_html);
+        id_html
+    );
     p_bool_getter!(
         /// Is the connection to this peer "encrypted?"
-        is_encrypted);
+        is_encrypted
+    );
     p_bool_getter!(
         /// Did the peer initiate this connection?
-        is_incoming);
+        is_incoming
+    );
     p_bool_getter!(
         /// Is this connection obfuscated?
-        is_obfuscated);
+        is_obfuscated
+    );
     p_bool_getter!(is_preferred);
     p_bool_getter!(is_unwanted);
     p_int_getter!(
         /// Get the (estimated) peer download rate (from the entire swarm, not just this client).
-        peer_rate);
+        peer_rate
+    );
     p_int_getter!(
         /// Get the (estimated) peer download total (from the entire swarm, not just this client).
-        peer_total);
+        peer_total
+    );
     p_int_getter!(
         /// The remote port of the connection to this peer.
-        port);
+        port
+    );
     p_bool_getter!(
         /// Is the peer snubbed?
-        snubbed);
+        snubbed
+    );
     p_bool_setter!(
         /// Snub the peer.
-        set_snubbed, snubbed);
+        set_snubbed,
+        snubbed
+    );
     p_int_getter!(
         /// The upload rate to this peer, in bytes/second.
-        up_rate);
+        up_rate
+    );
     p_int_getter!(
         /// Total bytes uploaded to this peer.
-        up_total);
+        up_total
+    );
 }
 
 unsafe impl Send for Peer {}
@@ -171,6 +196,10 @@ unsafe impl Sync for Peer {}
 
 impl From<&Peer> for Value {
     fn from(peer: &Peer) -> Self {
-        Value::String(format!("{}:p{}", &peer.inner.download.sha1_hex(), peer.inner.peer_sha1_hex))
+        Value::String(format!(
+            "{}:p{}",
+            &peer.inner.download.sha1_hex(),
+            peer.inner.peer_sha1_hex
+        ))
     }
 }

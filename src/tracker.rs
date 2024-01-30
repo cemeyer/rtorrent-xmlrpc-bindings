@@ -67,7 +67,9 @@ pub struct Tracker {
 
 impl Tracker {
     pub(crate) fn new(download: Download, index: i64) -> Self {
-        Self { inner: Arc::new(TrackerInner { download, index, }) }
+        Self {
+            inner: Arc::new(TrackerInner { download, index }),
+        }
     }
 
     #[inline]
@@ -77,7 +79,8 @@ impl Tracker {
 
     t_str_getter!(
         /// Get the URL of the tracker.
-        url);
+        url
+    );
 }
 
 unsafe impl Send for Tracker {}
@@ -85,6 +88,10 @@ unsafe impl Sync for Tracker {}
 
 impl From<&Tracker> for Value {
     fn from(tracker: &Tracker) -> Self {
-        Value::String(format!("{}:t{}", &tracker.inner.download.sha1_hex(), tracker.inner.index))
+        Value::String(format!(
+            "{}:t{}",
+            &tracker.inner.download.sha1_hex(),
+            tracker.inner.index
+        ))
     }
 }
