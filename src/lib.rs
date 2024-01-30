@@ -57,15 +57,17 @@ d::MultiBuilder::new(&my_handle, "default")
 [`Server`]: crate::Server
 !*/
 
+use std::io::{Cursor, Read, Write};
+use std::os::unix::net::UnixStream;
 use std::sync::Arc;
-use xmlrpc::{Request, Value};
+use xmlrpc::{Request, Transport, Value};
 
-pub(crate) mod value_conversion;
 mod download;
 mod file;
 pub mod multicall;
 mod peer;
 mod tracker;
+pub(crate) mod value_conversion;
 
 pub use download::Download;
 pub use file::File;
@@ -115,16 +117,91 @@ macro_rules! server_getter {
     ($(#[$meta:meta])* $method: ident, $api: literal, $ty: ty) => {
         $(#[$meta])*
         pub fn $method(&self) -> Result<$ty> {
-            let val = Request::new($api)
-                .call_url(self.endpoint())?;
+            let val = self.execute(Request::new($api))?;
             <$ty as TryFromValue>::try_from_value(&val)
         }
     }
 }
 
+#[derive(Clone, Debug)]
+struct UnixSocketTransport {
+    socket: String,
+}
+
+impl UnixSocketTransport {
+    pub fn new(socket: &str) -> Self {
+        UnixSocketTransport {
+            socket: socket.to_owned(),
+        }
+    }
+
+    fn scgi_headers(size: usize) -> String {
+        let headers = vec![
+            ("CONTENT_LENGTH", format!("{size}")),
+            ("SCGI", "1".to_string()),
+            ("REQUEST_METHOD", "POST".to_string()),
+            ("SERVER_PROTOCOL", "HTTP/1.1".to_string()),
+        ]
+        .into_iter()
+        .map(|(k, v)| format!("{k}\0{v}\0"))
+        .collect::<Vec<String>>()
+        .join("");
+        format!("{}:{headers},", headers.len())
+    }
+
+    fn process_body(
+        &self,
+        body: &[u8],
+    ) -> std::result::Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync>> {
+        let mut stream = UnixStream::connect(&self.socket)?;
+        let headers = UnixSocketTransport::scgi_headers(body.len());
+        stream.write_all(headers.as_ref())?;
+        stream.write_all(body)?;
+
+        let mut response = Vec::new();
+        stream.read_to_end(&mut response)?;
+
+        // Find the end of headers by searching for two \r\n in a row.
+        let header_cut = response
+            .windows(4)
+            .enumerate()
+            .find_map(|(idx, window)| {
+                if window == b"\r\n\r\n" {
+                    Some(idx + 4)
+                } else {
+                    None
+                }
+            })
+            .expect("foo");
+        response.drain(..header_cut);
+        Ok(response)
+    }
+}
+
+impl Transport for UnixSocketTransport {
+    type Stream = Cursor<Vec<u8>>;
+    fn transmit(
+        self,
+        request: &Request<'_>,
+    ) -> std::result::Result<Self::Stream, Box<dyn std::error::Error + Send + Sync>> {
+        let mut body = Vec::new();
+        // This unwrap never panics as we are using `Vec<u8>` as a `Write` implementor,
+        // and not doing anything else that could return an `Err` in `write_as_xml()`.
+        request.write_as_xml(&mut body).unwrap();
+        let response = self.process_body(&body)?;
+        Ok(Cursor::new(response))
+    }
+}
+
+#[derive(Debug)]
+enum Endpoint {
+    Http(String),
+    Scgi(UnixSocketTransport),
+}
+
 #[derive(Debug)]
 struct ServerInner {
-    endpoint: String,
+    endpoint: Endpoint,
 }
 
 /// `Server` represents a logical rtorrent instance
@@ -146,17 +223,27 @@ impl Server {
     /// # Ok::<(), rtorrent::Error>(())
     /// ```
     pub fn new(endpoint: &str) -> Self {
-        Self { inner: Arc::new(ServerInner { endpoint: endpoint.to_owned() }) }
+        Self {
+            inner: Arc::new(ServerInner {
+                endpoint: if endpoint.starts_with("http://") {
+                    Endpoint::Http(endpoint.to_owned())
+                } else {
+                    Endpoint::Scgi(UnixSocketTransport::new(endpoint))
+                },
+            }),
+        }
     }
 
-    #[inline]
-    fn endpoint(&self) -> &str {
-        &self.inner.endpoint
+    pub fn execute(&self, request: Request) -> std::result::Result<Value, xmlrpc::Error> {
+        match &self.inner.endpoint {
+            Endpoint::Http(url) => request.call_url(url),
+            Endpoint::Scgi(transport) => request.call(transport.clone()),
+        }
     }
 
     /// Get a list of all downloads loaded in this instance of rtorrent.
     pub fn download_list(&self) -> Result<Vec<Download>> {
-        let raw_list = Request::new("download_list").call_url(self.endpoint())?;
+        let raw_list = self.execute(Request::new("download_list"))?;
         value_conversion::list(&raw_list)?
             .iter()
             .map(|v| Download::from_value(&self, v))
@@ -172,10 +259,7 @@ impl Server {
         } else {
             "load.verbose"
         };
-        let raw_response = Request::new(load)
-            .arg("")
-            .arg(link.to_string())
-            .call_url(self.endpoint())?;
+        let raw_response = self.execute(Request::new(load).arg("").arg(link.to_string()))?;
         <i64 as TryFromValue>::try_from_value(&raw_response)
     }
 
@@ -188,51 +272,84 @@ impl Server {
         } else {
             "load.raw_verbose"
         };
-        let raw_response = Request::new(load)
-            .arg("")
-            .arg(contents.to_vec())
-            .call_url(self.endpoint())?;
+        let raw_response = self.execute(Request::new(load).arg("").arg(contents.to_vec()))?;
         <i64 as TryFromValue>::try_from_value(&raw_response)
     }
 
     server_getter!(
         /// Get the IP address associated with this rtorrent instance.
-        ip, "network.bind_address", String);
+        ip,
+        "network.bind_address",
+        String
+    );
     server_getter!(
         /// Get the port(s) associated with this rtorrent instance.
-        port, "network.port_range", String);
+        port,
+        "network.port_range",
+        String
+    );
     server_getter!(
         /// Get the hostname associated with this rtorrent instance.
-        hostname, "system.hostname", String);
+        hostname,
+        "system.hostname",
+        String
+    );
     server_getter!(
         /// Get the time in seconds since Unix Epoch when this rtorrent instance was started.
-        startup_time, "system.startup_time", i64);
+        startup_time,
+        "system.startup_time",
+        i64
+    );
     server_getter!(
         /// Exit rtorrent, informing trackers that we are going away and waiting some time for them
         /// to acknowledge.
-        exit_rtorrent, "system.shutdown.normal", i64);
+        exit_rtorrent,
+        "system.shutdown.normal",
+        i64
+    );
     server_getter!(
         /// Get the XMLRPC API version associated with this instance.
-        api_version, "system.api_version", String);
+        api_version,
+        "system.api_version",
+        String
+    );
     server_getter!(
         /// Get the rtorrent version associated with this instance.
-        client_version, "system.client_version", String);
+        client_version,
+        "system.client_version",
+        String
+    );
     server_getter!(
         /// Get the libtorrent version associated with this instance.
-        library_version, "system.library_version", String);
+        library_version,
+        "system.library_version",
+        String
+    );
 
     server_getter!(
         /// Get the total downloaded metric for this instance (bytes).
-        down_total, "throttle.global_down.total", i64);
+        down_total,
+        "throttle.global_down.total",
+        i64
+    );
     server_getter!(
         /// Get the current download rate for this instance (bytes/s).
-        down_rate, "throttle.global_down.rate", i64);
+        down_rate,
+        "throttle.global_down.rate",
+        i64
+    );
     server_getter!(
         /// Get the total uploaded metric for this instance (bytes).
-        up_total, "throttle.global_up.total", i64);
+        up_total,
+        "throttle.global_up.total",
+        i64
+    );
     server_getter!(
         /// Get the current upload rate for this instance (bytes/s).
-        up_rate, "throttle.global_up.rate", i64);
+        up_rate,
+        "throttle.global_up.rate",
+        i64
+    );
 }
 
 unsafe impl Send for Server {}
@@ -248,9 +365,8 @@ pub(crate) mod macros {
         ) => {
             $(#[$meta])*
             pub fn $method(&self) -> Result<$result> {
-                let val = Request::new(concat!($ns, stringify!($method)))
-                    .arg(self)
-                    .call_url(self.endpoint())?;
+                let val = self.execute(Request::new(concat!($ns, stringify!($method)))
+                    .arg(self))?;
                 <$result as TryFromValue>::try_from_value(&val)
             }
         }
@@ -263,9 +379,8 @@ pub(crate) mod macros {
         ) => {
             $(#[$meta])*
             pub fn $method(&self) -> Result<$result> {
-                let val = Request::new(concat!($ns, $apimethod))
-                    .arg(self)
-                    .call_url(self.endpoint())?;
+                let val = self.execute(Request::new(concat!($ns, $apimethod))
+                    .arg(self))?;
                 <$result as TryFromValue>::try_from_value(&val)
             }
         }
@@ -278,11 +393,9 @@ pub(crate) mod macros {
             $ns: literal, $rmethod: ident, $apimethod: ident, $ty: ty
         ) => {
             $(#[$meta])*
-            pub fn $rmethod(&self, new: $ty) -> Result<()> {
-                let val = Request::new(concat!($ns, stringify!($apimethod), ".set"))
-                    .arg(self)
-                    .arg(new)
-                    .call_url(self.endpoint())?;
+            pub fn $rmethod(&self, _new: $ty) -> Result<()> {
+                let val = self.execute(Request::new(concat!($ns, stringify!($apimethod), ".set"))
+                    .arg(self))?;
                 <() as TryFromValue>::try_from_value(&val)
             }
         }
