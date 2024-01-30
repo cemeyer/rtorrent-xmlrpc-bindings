@@ -89,9 +89,8 @@ impl File {
         }
     }
 
-    #[inline]
-    pub(crate) fn endpoint(&self) -> &str {
-        self.inner.download.endpoint()
+    pub fn execute(&self, request: Request) -> std::result::Result<Value, xmlrpc::Error> {
+        self.inner.download.execute(request)
     }
 
     f_int_getter!(

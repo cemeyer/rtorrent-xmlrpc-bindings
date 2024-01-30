@@ -43,7 +43,7 @@ impl MultiBuilderInternal {
     }
 
     pub(crate) fn invoke(&self) -> Result<Vec<Value>> {
-        let list = self.as_request().call_url(self.server.endpoint())?;
+        let list = self.server.execute(self.as_request())?;
         Ok(value_conversion::list(&list)?.clone())
     }
 }

@@ -180,9 +180,8 @@ impl Download {
         }
     }
 
-    #[inline]
-    pub(crate) fn endpoint(&self) -> &str {
-        self.inner.server.endpoint()
+    pub fn execute(&self, request: Request) -> std::result::Result<Value, xmlrpc::Error> {
+        self.inner.server.execute(request)
     }
 
     /// Get the "infohash" of this download (hex string).
